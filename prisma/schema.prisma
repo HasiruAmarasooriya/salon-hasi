@@ -1,0 +1,169 @@
+// Salon Hasi — full data model (Phase 2+ migrations)
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  CUSTOMER
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum InvoiceStatus {
+  DRAFT
+  PAID
+  PARTIAL
+  REFUNDED
+  CANCELLED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  phone        String?
+  passwordHash String?
+  role         Role     @default(CUSTOMER)
+  image        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  appointments Appointment[]
+  invoices     Invoice[]
+}
+
+model ServiceCategory {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  description String?
+  icon        String?
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  services    Service[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  price       Float
+  durationMin Int      @default(30)
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  categoryId  String
+  category    ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  appointmentServices AppointmentService[]
+  invoiceItems        InvoiceItem[]
+}
+
+model Staff {
+  id        String   @id @default(cuid())
+  name      String
+  title     String?
+  bio       String?
+  imageUrl  String?
+  phone     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  appointments Appointment[]
+}
+
+model Appointment {
+  id            String            @id @default(cuid())
+  customerId    String
+  customer      User              @relation(fields: [customerId], references: [id])
+  staffId       String?
+  staff         Staff?            @relation(fields: [staffId], references: [id])
+  scheduledAt   DateTime
+  status        AppointmentStatus @default(PENDING)
+  notes         String?
+  totalAmount   Float             @default(0)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  services AppointmentService[]
+  invoice  Invoice?
+}
+
+model AppointmentService {
+  id            String @id @default(cuid())
+  appointmentId String
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  serviceId     String
+  service       Service @relation(fields: [serviceId], references: [id])
+  price         Float
+}
+
+model Invoice {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique
+  customerId    String
+  customer      User          @relation(fields: [customerId], references: [id])
+  appointmentId String?       @unique
+  appointment   Appointment?  @relation(fields: [appointmentId], references: [id])
+  subtotal      Float
+  tax           Float         @default(0)
+  discount      Float         @default(0)
+  total         Float
+  status        InvoiceStatus @default(DRAFT)
+  paidAt        DateTime?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  items InvoiceItem[]
+}
+
+model InvoiceItem {
+  id          String  @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  serviceId   String?
+  service     Service? @relation(fields: [serviceId], references: [id])
+  description String
+  quantity    Int     @default(1)
+  unitPrice   Float
+  total       Float
+}
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  title     String?
+  imageUrl  String
+  category  String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model SiteSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
