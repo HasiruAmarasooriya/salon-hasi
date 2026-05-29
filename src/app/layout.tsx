@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
-import { Playfair_Display, DM_Sans } from "next/font/google";
+import { Cormorant_Garamond, Playfair_Display, DM_Sans } from "next/font/google";
 import "./globals.css";
+
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+});
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -16,11 +23,11 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "Salon Hasi | Premium Grooming",
+    default: "Salon Hasi | Luxury Grooming Atelier",
     template: "%s | Salon Hasi",
   },
   description:
-    "World-class salon services — hair, beard, nails, foot spa, facials & packages. Book online with transparent pricing.",
+    "Sri Lanka's premier luxury salon — bespoke hair, beard rituals, nail couture, foot spa & facials. Book your transformation today.",
 };
 
 export default function RootLayout({
@@ -29,7 +36,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${dmSans.variable} h-full`}>
+    <html
+      lang="en"
+      className={`${cormorant.variable} ${playfair.variable} ${dmSans.variable} h-full`}
+    >
       <body className="min-h-full antialiased">{children}</body>
     </html>
   );

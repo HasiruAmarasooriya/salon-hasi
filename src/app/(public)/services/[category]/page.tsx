@@ -2,9 +2,19 @@ import { notFound } from "next/navigation";
 import { SERVICE_CATEGORIES } from "@/lib/constants";
 import { getServicesByCategory } from "@/data/services";
 import { ServiceCard } from "@/components/services/ServiceCard";
+import { PageHero } from "@/components/ui/PageHero";
 import type { Metadata } from "next";
 
 type Props = { params: Promise<{ category: string }> };
+
+const categoryImages: Record<string, string> = {
+  hair: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1920&q=80",
+  beard: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=1920&q=80",
+  nails: "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=1920&q=80",
+  foot: "https://images.unsplash.com/photo-1544161515-4ab6ce6db949?w=1920&q=80",
+  facial: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=1920&q=80",
+  packages: "https://images.unsplash.com/photo-1560066984-138d9834f42d?w=1920&q=80",
+};
 
 export async function generateStaticParams() {
   return SERVICE_CATEGORIES.map((c) => ({ category: c.slug }));
@@ -24,24 +34,25 @@ export default async function CategoryServicesPage({ params }: Props) {
   const services = getServicesByCategory(category);
 
   return (
-    <div className="bg-[var(--ink)] pt-24 pb-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[var(--gold)]">
-          Category
-        </p>
-        <h1 className="mt-2 font-serif text-4xl text-[var(--cream)]">{cat.name}</h1>
-        <p className="mt-3 max-w-xl text-[var(--cream-muted)]">{cat.description}</p>
-
-        {services.length === 0 ? (
-          <p className="mt-12 text-[var(--cream-muted)]">No services in this category yet.</p>
-        ) : (
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((service) => (
-              <ServiceCard key={service.id} service={service} />
-            ))}
-          </div>
-        )}
+    <>
+      <PageHero
+        title={cat.name}
+        subtitle={cat.description}
+        image={categoryImages[cat.slug] ?? categoryImages.hair}
+      />
+      <div className="bg-[var(--ink)] py-16 pb-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {services.length === 0 ? (
+            <p className="text-center text-[var(--cream-muted)]">No services in this category yet.</p>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {services.map((service) => (
+                <ServiceCard key={service.id} service={service} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

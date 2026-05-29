@@ -1,29 +1,27 @@
 import { Hero } from "@/components/home/Hero";
+import { MarqueeBanner } from "@/components/home/MarqueeBanner";
+import { TrustBar } from "@/components/home/TrustBar";
+import { Experience } from "@/components/home/Experience";
 import { Categories } from "@/components/home/Categories";
+import { Process } from "@/components/home/Process";
 import { FeaturedServices } from "@/components/home/FeaturedServices";
+import { Testimonials } from "@/components/home/Testimonials";
+import { GalleryPreview } from "@/components/home/GalleryPreview";
+import { LuxuryCta } from "@/components/home/LuxuryCta";
 
 export default function HomePage() {
   return (
     <>
       <Hero />
+      <MarqueeBanner />
+      <TrustBar />
+      <Experience />
       <Categories />
       <FeaturedServices />
-      <section className="border-t border-white/5 bg-gradient-to-b from-[var(--ink-soft)] to-[var(--ink)] py-20 text-center">
-        <div className="mx-auto max-w-2xl px-4">
-          <h2 className="font-serif text-3xl text-[var(--cream)]">
-            Ready for your transformation?
-          </h2>
-          <p className="mt-3 text-[var(--cream-muted)]">
-            Book in under a minute. Walk-ins welcome subject to availability.
-          </p>
-          <a
-            href="/book"
-            className="mt-8 inline-flex rounded-full bg-[var(--gold)] px-8 py-3.5 font-medium text-[var(--ink)] transition hover:bg-[var(--gold-light)]"
-          >
-            Book Appointment
-          </a>
-        </div>
-      </section>
+      <Process />
+      <Testimonials />
+      <GalleryPreview />
+      <LuxuryCta />
     </>
   );
 }

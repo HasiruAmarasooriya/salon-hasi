@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SERVICE_CATEGORIES } from "@/lib/constants";
 import { SERVICES } from "@/data/services";
 import { ServiceCard } from "@/components/services/ServiceCard";
+import { PageHero } from "@/components/ui/PageHero";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,39 +11,33 @@ export const metadata: Metadata = {
 
 export default function ServicesPage() {
   return (
-    <div className="bg-[var(--ink)] pt-24 pb-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[var(--gold)]">
-            Menu
-          </p>
-          <h1 className="mt-2 font-serif text-4xl text-[var(--cream)] sm:text-5xl">
-            Services & Prices
-          </h1>
-          <p className="mt-4 text-[var(--cream-muted)]">
-            Hair, beard, nails, foot spa, facials & combo packages — all with
-            duration and pricing shown upfront.
-          </p>
-        </div>
+    <>
+      <PageHero
+        title="Services & Prices"
+        subtitle="Transparent luxury — every ritual with duration, imagery, and upfront pricing."
+        image="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=1920&q=80"
+      />
+      <div className="bg-[var(--ink)] py-16 pb-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap justify-center gap-2">
+            {SERVICE_CATEGORIES.map((cat) => (
+              <Link
+                key={cat.slug}
+                href={`/services/${cat.slug}`}
+                className="rounded-sm border border-white/10 px-5 py-2.5 text-xs font-medium uppercase tracking-wider text-[var(--cream-muted)] transition hover:border-[var(--gold)]/50 hover:bg-[var(--gold)]/10 hover:text-[var(--gold)]"
+              >
+                {cat.name}
+              </Link>
+            ))}
+          </div>
 
-        <div className="mt-8 flex flex-wrap gap-2">
-          {SERVICE_CATEGORIES.map((cat) => (
-            <Link
-              key={cat.slug}
-              href={`/services/${cat.slug}`}
-              className="rounded-full border border-white/10 px-4 py-2 text-sm text-[var(--cream-muted)] transition hover:border-[var(--gold)]/50 hover:text-[var(--gold)]"
-            >
-              {cat.name}
-            </Link>
-          ))}
-        </div>
-
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {SERVICES.map((service) => (
-            <ServiceCard key={service.id} service={service} />
-          ))}
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {SERVICES.map((service) => (
+              <ServiceCard key={service.id} service={service} />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
