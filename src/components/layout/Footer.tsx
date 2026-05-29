@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MapPin, Mail, Phone, Clock, Instagram, Facebook } from "lucide-react";
+import { MapPin, Mail, Phone, Clock, Globe, MessageCircle } from "lucide-react";
 import { SITE } from "@/lib/constants";
 import { Button } from "@/components/ui/Button";
 
@@ -55,14 +55,14 @@ export function Footer() {
               className="flex h-10 w-10 items-center justify-center rounded-sm border border-white/10 text-[var(--cream-muted)] transition hover:border-[var(--gold)] hover:text-[var(--gold)]"
               aria-label="Instagram"
             >
-              <Instagram size={18} />
+              <Globe size={18} />
             </a>
             <a
               href="#"
               className="flex h-10 w-10 items-center justify-center rounded-sm border border-white/10 text-[var(--cream-muted)] transition hover:border-[var(--gold)] hover:text-[var(--gold)]"
               aria-label="Facebook"
             >
-              <Facebook size={18} />
+              <MessageCircle size={18} />
             </a>
           </div>
         </div>
