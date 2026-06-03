@@ -6,11 +6,14 @@ import { useState } from "react";
 import { Loader2, Pencil, Plus } from "lucide-react";
 import { AdminModal, adminInputClass, adminLabelClass } from "@/components/admin/AdminModal";
 import { ConfirmDeleteButton } from "@/components/admin/ConfirmDeleteButton";
+import { DriveImageUpload } from "@/components/admin/DriveImageUpload";
+import { resolveGalleryImageSrc } from "@/lib/google-drive/urls";
 
 export type GalleryRow = {
   id: string;
   title: string | null;
   imageUrl: string;
+  driveFileId: string | null;
   category: string | null;
   sortOrder: number;
   isActive: boolean;
@@ -23,6 +26,7 @@ type Props = {
 const emptyImage = {
   title: "",
   imageUrl: "",
+  driveFileId: null as string | null,
   category: "",
   sortOrder: 0,
   isActive: true,
@@ -47,6 +51,7 @@ export function GalleryManager({ initialImages }: Props) {
     setForm({
       title: img.title ?? "",
       imageUrl: img.imageUrl,
+      driveFileId: img.driveFileId,
       category: img.category ?? "",
       sortOrder: img.sortOrder,
       isActive: img.isActive,
@@ -58,6 +63,11 @@ export function GalleryManager({ initialImages }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!form.imageUrl) {
+      setError("Please upload an image to Google Drive first.");
+      return;
+    }
+
     setError("");
     setLoading(true);
 
@@ -120,7 +130,7 @@ export function GalleryManager({ initialImages }: Props) {
 
       {initialImages.length === 0 ? (
         <div className="mt-8 rounded-xl border border-dashed border-zinc-300 bg-white p-12 text-center text-zinc-500">
-          No gallery images yet. Click &quot;Add image&quot; to upload a URL.
+          No gallery images yet. Click &quot;Add image&quot; to upload to Google Drive.
         </div>
       ) : (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -131,16 +141,20 @@ export function GalleryManager({ initialImages }: Props) {
             >
               <div className="relative aspect-[4/3] bg-zinc-100">
                 <Image
-                  src={img.imageUrl}
+                  src={resolveGalleryImageSrc(img.imageUrl, img.driveFileId)}
                   alt={img.title ?? "Gallery"}
                   fill
                   className="object-cover"
                   sizes="300px"
+                  unoptimized={Boolean(img.driveFileId)}
                 />
               </div>
               <div className="p-4">
                 <p className="font-medium text-zinc-900">{img.title ?? "Untitled"}</p>
                 <p className="text-xs text-zinc-500">{img.category}</p>
+                {img.driveFileId && (
+                  <p className="mt-1 text-xs text-zinc-400">Stored in Google Drive</p>
+                )}
                 <p className="mt-2 text-xs">
                   {img.isActive ? (
                     <span className="text-emerald-600">Visible on site</span>
@@ -171,16 +185,14 @@ export function GalleryManager({ initialImages }: Props) {
         onClose={() => setModal(null)}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className={adminLabelClass}>Image URL</label>
-            <input
-              required
-              value={form.imageUrl}
-              onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-              className={adminInputClass}
-              placeholder="/images/gallery/..."
-            />
-          </div>
+          <DriveImageUpload
+            imageUrl={form.imageUrl}
+            driveFileId={form.driveFileId}
+            required={modal === "add"}
+            onChange={({ imageUrl, driveFileId }) =>
+              setForm({ ...form, imageUrl, driveFileId })
+            }
+          />
           <div>
             <label className={adminLabelClass}>Title</label>
             <input
@@ -220,7 +232,7 @@ export function GalleryManager({ initialImages }: Props) {
           </label>
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || (modal === "add" && !form.imageUrl)}
             className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-amber-600 py-2.5 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
           >
             {loading && <Loader2 size={16} className="animate-spin" />}

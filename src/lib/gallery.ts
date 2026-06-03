@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { GALLERY_IMAGES } from "@/data/gallery";
+import { resolveGalleryImageSrc } from "@/lib/google-drive/urls";
 
 export type GalleryItem = {
   id: string;
@@ -25,7 +26,7 @@ export async function getGalleryImages(): Promise<GalleryItem[]> {
 
   return dbImages.map((img) => ({
     id: img.id,
-    src: img.imageUrl,
+    src: resolveGalleryImageSrc(img.imageUrl, img.driveFileId),
     title: img.title ?? "Salon Hasi",
     category: img.category ?? "Gallery",
   }));

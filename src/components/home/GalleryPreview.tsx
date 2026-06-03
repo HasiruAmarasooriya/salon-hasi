@@ -46,6 +46,7 @@ export function GalleryPreview({ images }: Props) {
                 src={img.src}
                 alt={img.title}
                 fill
+                unoptimized={img.src.startsWith("/api/images/drive/")}
                 className="object-cover transition duration-500 hover:scale-105"
                 sizes="(max-width: 768px) 50vw, 33vw"
               />

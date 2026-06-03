@@ -31,6 +31,7 @@ export async function POST(request: Request) {
       data: {
         title: parsed.data.title ?? null,
         imageUrl: parsed.data.imageUrl.trim(),
+        driveFileId: parsed.data.driveFileId ?? null,
         category: parsed.data.category ?? null,
         sortOrder: parsed.data.sortOrder ?? 0,
         isActive: parsed.data.isActive ?? true,
