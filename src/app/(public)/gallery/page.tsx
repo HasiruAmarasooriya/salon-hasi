@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { GALLERY_IMAGES } from "@/data/gallery";
+import { PAGE_COVERS } from "@/lib/constants";
 import { PageHero } from "@/components/ui/PageHero";
 import { cn } from "@/lib/utils";
 const categories = ["All", ...Array.from(new Set(GALLERY_IMAGES.map((i) => i.category)))];
@@ -19,7 +20,9 @@ export default function GalleryPage() {
       <PageHero
         title="Gallery"
         subtitle="Moments of craftsmanship, ambiance, and transformation."
-        image="https://images.unsplash.com/photo-1560066984-138d9834f42d?w=1920&q=80"
+        eyebrow="Portfolio"
+        image={PAGE_COVERS.gallery}
+        imageAlt="Salon Hasi — gallery of our work"
       />
       <section className="bg-[var(--ink)] py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

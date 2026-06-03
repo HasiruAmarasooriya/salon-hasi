@@ -118,7 +118,7 @@ export function Footer() {
       <div className="relative border-t border-white/5 py-6">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 text-xs text-[var(--cream-muted)] sm:flex-row sm:px-6 lg:px-8">
           <p>© {new Date().getFullYear()} {SITE.name}. Crafted with excellence.</p>
-          <Link href="/admin" className="hover:text-[var(--gold)]">
+          <Link href="/admin/login" className="hover:text-[var(--gold)]">
             Staff Login
           </Link>
         </div>

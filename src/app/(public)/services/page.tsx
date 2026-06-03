@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SERVICE_CATEGORIES } from "@/lib/constants";
+import { SERVICE_CATEGORIES, PAGE_COVERS } from "@/lib/constants";
 import { SERVICES } from "@/data/services";
 import { ServiceCard } from "@/components/services/ServiceCard";
 import { PageHero } from "@/components/ui/PageHero";
@@ -15,7 +15,9 @@ export default function ServicesPage() {
       <PageHero
         title="Services & Prices"
         subtitle="Transparent luxury — every ritual with duration, imagery, and upfront pricing."
-        image="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=1920&q=80"
+        eyebrow="Menu"
+        image={PAGE_COVERS.services}
+        imageAlt="Salon Hasi services"
       />
       <div className="bg-[var(--ink)] py-16 pb-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

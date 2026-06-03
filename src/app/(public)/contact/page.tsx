@@ -1,5 +1,5 @@
 import { MapPin, Mail, Phone, Clock, MessageCircle } from "lucide-react";
-import { SITE } from "@/lib/constants";
+import { SITE, PAGE_COVERS } from "@/lib/constants";
 import { PageHero } from "@/components/ui/PageHero";
 import type { Metadata } from "next";
 
@@ -13,6 +13,9 @@ export default function ContactPage() {
       <PageHero
         title="Get in Touch"
         subtitle="We're here to assist with bookings, packages, and special occasions."
+        eyebrow="Contact"
+        image={PAGE_COVERS.contact}
+        imageAlt="Salon Hasi — contact us"
       />
       <div className="bg-[var(--ink)] py-16 pb-24">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">

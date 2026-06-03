@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { SITE } from "@/lib/constants";
 import { Button } from "@/components/ui/Button";
+import { AuthNav } from "@/components/auth/AuthNav";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -58,7 +59,8 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="hidden lg:block">
+        <div className="hidden items-center gap-6 lg:flex">
+          <AuthNav />
           <Button href="/book" size="sm" className="shimmer-gold">
             Reserve
           </Button>
@@ -91,6 +93,14 @@ export function Header() {
               {item.label}
             </Link>
           ))}
+          <AuthNav mobile />
+          <Link
+            href="/register"
+            onClick={() => setOpen(false)}
+            className="rounded-sm px-3 py-3 text-sm uppercase tracking-wider text-[var(--cream-muted)] hover:bg-white/5 hover:text-[var(--gold)]"
+          >
+            Register
+          </Link>
           <Button href="/book" className="mt-2 w-full">
             Reserve Now
           </Button>

@@ -2,6 +2,7 @@ import Image from "next/image";
 import { PageHero } from "@/components/ui/PageHero";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
+import { PAGE_COVERS } from "@/lib/constants";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -32,7 +33,9 @@ export default function AboutPage() {
       <PageHero
         title="Our Story"
         subtitle="A legacy of craftsmanship, hospitality, and uncompromising standards since 2014."
-        image="https://images.unsplash.com/photo-1585747860715-2ba37c7fb7f2?w=1920&q=80"
+        eyebrow="About Us"
+        image={PAGE_COVERS.about}
+        imageAlt="Salon Hasi interior — Matale"
       />
 
       <section className="bg-[var(--ink)] py-24">
