@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MapPin, Mail, Phone, Clock, Globe, MessageCircle } from "lucide-react";
 import { SITE } from "@/lib/constants";
 import { Button } from "@/components/ui/Button";
+import { NewsletterForm } from "@/components/layout/NewsletterForm";
 
 export function Footer() {
   return (
@@ -22,19 +23,7 @@ export function Footer() {
               Offers, new services & styling tips — no spam.
             </p>
           </div>
-          <form className="flex w-full max-w-md gap-2 sm:w-auto">
-            <input
-              type="email"
-              placeholder="Your email"
-              className="flex-1 rounded-sm border border-white/10 bg-[var(--ink-soft)] px-4 py-3 text-sm text-[var(--cream)] outline-none focus:border-[var(--gold)]/50"
-            />
-            <button
-              type="submit"
-              className="shrink-0 rounded-sm bg-[var(--gold)] px-6 py-3 text-sm font-semibold text-[var(--ink)] transition hover:bg-[var(--gold-light)]"
-            >
-              Subscribe
-            </button>
-          </form>
+          <NewsletterForm />
         </div>
       </div>
 
@@ -76,6 +65,7 @@ export function Footer() {
               { href: "/services", label: "Services & Menu" },
               { href: "/gallery", label: "Gallery" },
               { href: "/about", label: "Our Story" },
+              { href: "/faq", label: "FAQ" },
               { href: "/book", label: "Book Appointment" },
             ].map((link) => (
               <li key={link.href}>

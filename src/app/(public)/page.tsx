@@ -1,4 +1,6 @@
 import { Hero } from "@/components/home/Hero";
+import { OffersBanner } from "@/components/home/OffersBanner";
+import { getGalleryImages } from "@/lib/gallery";
 import { MarqueeBanner } from "@/components/home/MarqueeBanner";
 import { TrustBar } from "@/components/home/TrustBar";
 import { Experience } from "@/components/home/Experience";
@@ -9,10 +11,13 @@ import { Testimonials } from "@/components/home/Testimonials";
 import { GalleryPreview } from "@/components/home/GalleryPreview";
 import { LuxuryCta } from "@/components/home/LuxuryCta";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const galleryImages = await getGalleryImages();
+
   return (
     <>
       <Hero />
+      <OffersBanner />
       <MarqueeBanner />
       <TrustBar />
       <Experience />
@@ -20,7 +25,7 @@ export default function HomePage() {
       <FeaturedServices />
       <Process />
       <Testimonials />
-      <GalleryPreview />
+      <GalleryPreview images={galleryImages} />
       <LuxuryCta />
     </>
   );

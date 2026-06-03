@@ -1,13 +1,15 @@
+import { STOCK_IMAGES } from "@/lib/constants";
+
 export const GALLERY_IMAGES = [
   {
     id: "g1",
-    src: "https://images.unsplash.com/photo-1585747860715-2ba37c7fb7f2?w=800&q=80",
+    src: STOCK_IMAGES.salonInteriorMd,
     title: "Salon Interior",
     category: "Space",
   },
   {
     id: "g2",
-    src: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800&q=80",
+    src: STOCK_IMAGES.hair,
     title: "Precision Fade",
     category: "Hair",
   },
@@ -37,7 +39,7 @@ export const GALLERY_IMAGES = [
   },
   {
     id: "g7",
-    src: "https://images.unsplash.com/photo-1599351431202-1e0f112789fb?w=800&q=80",
+    src: STOCK_IMAGES.beardHotTowel,
     title: "Hot Towel Ritual",
     category: "Beard",
   },

@@ -1,6 +1,7 @@
 import { MapPin, Mail, Phone, Clock, MessageCircle } from "lucide-react";
 import { SITE, PAGE_COVERS } from "@/lib/constants";
 import { PageHero } from "@/components/ui/PageHero";
+import { ContactForm } from "@/components/contact/ContactForm";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -52,29 +53,7 @@ export default function ContactPage() {
             </a>
           </div>
 
-          <form className="gold-border-glow space-y-4 rounded-sm bg-[var(--ink-elevated)] p-8">
-            <h2 className="font-serif text-2xl text-[var(--cream)]">Send a Message</h2>
-            <input
-              placeholder="Your name"
-              className="w-full rounded-sm border border-white/10 bg-[var(--ink)] px-4 py-3.5 text-[var(--cream)] outline-none focus:border-[var(--gold)]/50"
-            />
-            <input
-              type="email"
-              placeholder="Email address"
-              className="w-full rounded-sm border border-white/10 bg-[var(--ink)] px-4 py-3.5 text-[var(--cream)] outline-none focus:border-[var(--gold)]/50"
-            />
-            <textarea
-              rows={5}
-              placeholder="How can we help?"
-              className="w-full rounded-sm border border-white/10 bg-[var(--ink)] px-4 py-3.5 text-[var(--cream)] outline-none focus:border-[var(--gold)]/50"
-            />
-            <button
-              type="submit"
-              className="w-full rounded-sm bg-gradient-to-r from-[var(--gold-dark)] to-[var(--gold)] py-4 text-sm font-semibold uppercase tracking-wider text-[var(--ink)]"
-            >
-              Send Message
-            </button>
-          </form>
+          <ContactForm />
         </div>
       </div>
     </>

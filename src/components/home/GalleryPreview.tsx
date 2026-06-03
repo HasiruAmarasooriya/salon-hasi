@@ -1,12 +1,15 @@
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { GALLERY_IMAGES } from "@/data/gallery";
+import type { GalleryItem } from "@/lib/gallery";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 
-export function GalleryPreview() {
-  const preview = GALLERY_IMAGES.slice(0, 6);
+type Props = {
+  images: GalleryItem[];
+};
+
+export function GalleryPreview({ images }: Props) {
+  const preview = images.slice(0, 6);
 
   return (
     <section className="bg-[var(--cream)] py-24">
@@ -18,7 +21,11 @@ export function GalleryPreview() {
             description="A glimpse into our craft — interiors, transformations, and rituals."
             align="left"
           />
-          <Button href="/gallery" variant="outline" className="border-[var(--ink)]/20 text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--cream)]">
+          <Button
+            href="/gallery"
+            variant="outline"
+            className="border-[var(--ink)]/20 text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--cream)]"
+          >
             Full Gallery <ArrowRight size={16} />
           </Button>
         </div>
@@ -28,7 +35,11 @@ export function GalleryPreview() {
             <div
               key={img.id}
               className={`group relative mb-4 break-inside-avoid overflow-hidden rounded-sm ${
-                i % 3 === 0 ? "aspect-[3/4]" : i % 3 === 1 ? "aspect-square" : "aspect-[4/5]"
+                i % 3 === 0
+                  ? "aspect-[3/4]"
+                  : i % 3 === 1
+                    ? "aspect-square"
+                    : "aspect-[4/5]"
               }`}
             >
               <Image
@@ -40,7 +51,9 @@ export function GalleryPreview() {
               />
               <div className="absolute inset-0 bg-[var(--ink)]/0 transition group-hover:bg-[var(--ink)]/50" />
               <div className="absolute inset-x-0 bottom-0 translate-y-full p-4 opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100">
-                <p className="text-xs uppercase tracking-wider text-[var(--gold)]">{img.category}</p>
+                <p className="text-xs uppercase tracking-wider text-[var(--gold)]">
+                  {img.category}
+                </p>
                 <p className="font-serif text-lg text-white">{img.title}</p>
               </div>
             </div>

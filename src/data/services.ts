@@ -33,7 +33,7 @@ export const SERVICES: ServiceItem[] = [
     price: 3200,
     durationMin: 50,
     imageUrl:
-      "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800&q=80",
+      "https://images.unsplash.com/photo-1503951914875-452162b0f3f8?w=800&q=80",
     featured: true,
   },
   {
@@ -80,7 +80,7 @@ export const SERVICES: ServiceItem[] = [
     price: 3500,
     durationMin: 45,
     imageUrl:
-      "https://images.unsplash.com/photo-1599351431202-1e0f112789fb?w=800&q=80",
+      "https://images.unsplash.com/photo-1599351431202-1e0e653b9611?w=800&q=80",
   },
   {
     id: "beard-3",
@@ -115,7 +115,7 @@ export const SERVICES: ServiceItem[] = [
     price: 4500,
     durationMin: 60,
     imageUrl:
-      "https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=800&q=80",
+      "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=800&q=80",
   },
   {
     id: "nails-3",

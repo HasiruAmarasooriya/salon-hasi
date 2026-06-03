@@ -7,6 +7,7 @@ import {
   Users,
   Settings,
   ImageIcon,
+  MessageSquare,
 } from "lucide-react";
 import { getSession } from "@/lib/auth/session";
 import { AdminLogoutButton } from "@/components/auth/AdminLogoutButton";
@@ -15,6 +16,7 @@ const adminNav = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/services", label: "Services & Prices", icon: Scissors },
   { href: "/admin/appointments", label: "Appointments", icon: Calendar },
+  { href: "/admin/messages", label: "Messages", icon: MessageSquare },
   { href: "/admin/billing", label: "Billing", icon: Receipt },
   { href: "/admin/staff", label: "Staff", icon: Users },
   { href: "/admin/gallery", label: "Gallery", icon: ImageIcon },

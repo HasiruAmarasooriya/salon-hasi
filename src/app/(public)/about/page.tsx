@@ -2,7 +2,7 @@ import Image from "next/image";
 import { PageHero } from "@/components/ui/PageHero";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
-import { PAGE_COVERS } from "@/lib/constants";
+import { PAGE_COVERS, STOCK_IMAGES } from "@/lib/constants";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -59,7 +59,7 @@ export default function AboutPage() {
           </div>
           <div className="relative aspect-[4/5] overflow-hidden rounded-sm gold-border-glow">
             <Image
-              src="https://images.unsplash.com/photo-1633681923020-5061dd9f963b?w=800&q=80"
+              src={STOCK_IMAGES.salonInteriorMd}
               alt="Salon team at work"
               fill
               className="object-cover"

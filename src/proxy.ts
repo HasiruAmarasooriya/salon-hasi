@@ -36,7 +36,7 @@ function isAdminRole(role: string) {
   return role === "ADMIN" || role === "STAFF";
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const user = await getUserFromRequest(request);
 

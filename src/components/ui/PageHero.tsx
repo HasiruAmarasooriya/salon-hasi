@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { PAGE_COVERS } from "@/lib/constants";
 
 type PageHeroProps = {
   title: string;
@@ -12,7 +13,7 @@ export function PageHero({
   title,
   subtitle,
   eyebrow = "Salon Hasi",
-  image = "https://images.unsplash.com/photo-1633681923020-5061dd9f963b?w=1920&q=80",
+  image = PAGE_COVERS.book,
   imageAlt,
 }: PageHeroProps) {
   return (

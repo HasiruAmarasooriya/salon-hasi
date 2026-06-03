@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowDown, Star } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { SITE } from "@/lib/constants";
+import { SITE, STOCK_IMAGES } from "@/lib/constants";
 
 const stats = [
   { value: "12+", label: "Years Excellence" },
@@ -15,7 +15,7 @@ export function Hero() {
   return (
     <section className="relative min-h-screen overflow-hidden pt-16">
       <Image
-        src="https://images.unsplash.com/photo-1585747860715-2ba37c7fb7f2?w=1920&q=80"
+        src={STOCK_IMAGES.hero}
         alt="Salon Hasi luxury interior"
         fill
         priority

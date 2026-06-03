@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Award, Droplets, Sparkles, Shield } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { STOCK_IMAGES } from "@/lib/constants";
 
 const features = [
   {
@@ -34,7 +35,7 @@ export function Experience() {
           <div className="relative">
             <div className="relative aspect-[4/5] overflow-hidden rounded-sm gold-border-glow">
               <Image
-                src="https://images.unsplash.com/photo-1633681923020-5061dd9f963b?w=800&q=80"
+                src={STOCK_IMAGES.salonInteriorMd}
                 alt="Luxury grooming experience"
                 fill
                 className="object-cover"

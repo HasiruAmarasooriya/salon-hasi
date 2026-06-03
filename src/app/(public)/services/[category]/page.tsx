@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { SERVICE_CATEGORIES } from "@/lib/constants";
+import { SERVICE_CATEGORIES, STOCK_IMAGES } from "@/lib/constants";
 import { getServicesByCategory } from "@/data/services";
 import { ServiceCard } from "@/components/services/ServiceCard";
 import { PageHero } from "@/components/ui/PageHero";
@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 type Props = { params: Promise<{ category: string }> };
 
 const categoryImages: Record<string, string> = {
-  hair: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1920&q=80",
+  hair: STOCK_IMAGES.hero,
   beard: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=1920&q=80",
   nails: "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=1920&q=80",
   foot: "https://images.unsplash.com/photo-1544161515-4ab6ce6db949?w=1920&q=80",

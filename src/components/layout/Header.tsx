@@ -13,6 +13,7 @@ const nav = [
   { href: "/services", label: "Services" },
   { href: "/gallery", label: "Gallery" },
   { href: "/about", label: "About" },
+  { href: "/faq", label: "FAQ" },
   { href: "/book", label: "Book" },
   { href: "/contact", label: "Contact" },
 ];
