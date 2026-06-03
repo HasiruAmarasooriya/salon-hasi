@@ -39,7 +39,10 @@ export default async function AdminPanelLayout({
           </p>
           <p className="font-serif text-lg text-zinc-900">Salon Hasi</p>
           {session && (
-            <p className="mt-2 truncate text-xs text-zinc-500">{session.email}</p>
+            <>
+              <p className="mt-2 truncate text-xs text-zinc-500">{session.email}</p>
+              <p className="text-xs font-medium text-amber-700">{session.role}</p>
+            </>
           )}
         </div>
         <nav className="flex-1 space-y-1 p-4">
@@ -72,7 +75,7 @@ export default async function AdminPanelLayout({
           <AdminLogoutButton />
         </header>
         <nav className="flex gap-2 overflow-x-auto border-b border-zinc-200 bg-white px-4 py-2 lg:hidden">
-          {adminNav.slice(0, 4).map(({ href, label }) => (
+          {adminNav.map(({ href, label }) => (
             <Link key={href} href={href} className="whitespace-nowrap text-sm text-amber-700">
               {label}
             </Link>
