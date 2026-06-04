@@ -1,6 +1,6 @@
-# Salon Hasi — Step-by-Step Development Guide
+# Salon Hasi — Development Guide
 
-This document is your roadmap from **Phase 1 (done)** to a full production salon website with admin panel, billing, and online booking.
+Roadmap for the salon website with admin panel, billing, and online booking.
 
 ---
 
@@ -10,9 +10,9 @@ This document is your roadmap from **Phase 1 (done)** to a full production salon
 |-------|--------|-----|
 | Framework | **Next.js 16** (App Router) | SEO, fast pages, API routes |
 | Styling | **Tailwind CSS 4** | Professional UI quickly |
-| Database | **Prisma + SQLite** (dev) → Postgres (prod) | Typesafe data |
-| Auth (Phase 3) | **NextAuth.js** | Admin & staff login |
-| Images (Phase 4) | **Cloudinary** or Uploadthing | Service photos upload |
+| Database | **Firebase Firestore** | Cloud NoSQL, scales with traffic |
+| Auth | **Firebase Authentication** | Email/password for admin & customers |
+| Images | Local `public/uploads` or Google Drive | Service & gallery photos |
 | Payments (optional) | **Stripe** or local gateway | Online deposits |
 
 ---
@@ -21,216 +21,107 @@ This document is your roadmap from **Phase 1 (done)** to a full production salon
 
 ```
 salon-hasi/
-├── prisma/schema.prisma    # Database models (ready)
+├── config/firebaseConfig.js     # Browser Firebase (env-based)
+├── scripts/seed-firestore.ts    # Seed Firestore + admin user
 ├── src/
+│   ├── lib/
+│   │   ├── firebase/            # Admin SDK, auth helpers, client
+│   │   ├── firestore/           # All database reads/writes
+│   │   └── types/database.ts    # TypeScript models
 │   ├── app/
-│   │   ├── (public)/       # Customer website
-│   │   │   ├── page.tsx          # Home
-│   │   │   ├── services/         # All services + by category
-│   │   │   ├── book/             # Booking form
-│   │   │   └── contact/
-│   │   └── admin/          # Admin panel
-│   │       ├── page.tsx          # Dashboard
-│   │       ├── services/         # Manage prices & images
-│   │       ├── appointments/
-│   │       └── billing/
-│   ├── components/
-│   ├── data/services.ts    # Sample services (replace with DB)
-│   └── lib/
-└── DEVELOPMENT.md          # This file
+│   │   ├── (public)/            # Customer website
+│   │   └── admin/               # Admin panel
+│   └── components/
+└── .env                         # Firebase keys (not committed)
 ```
+
+### Firestore collections
+
+| Collection | Purpose |
+|------------|---------|
+| `users` | Profiles (role: ADMIN, STAFF, CUSTOMER) — doc id = Firebase Auth uid |
+| `serviceCategories` | Hair, beard, nails, etc. |
+| `services` | Prices, duration, images |
+| `staff` | Stylists |
+| `appointments` | Bookings (embedded service lines) |
+| `invoices` | Billing (embedded line items) |
+| `galleryImages` | Portfolio photos |
+| `siteSettings` | Phone, hours, promos (doc id = setting key) |
+| `contactMessages` | Contact form inbox |
 
 ---
 
-## Phase 1 — Foundation ✅ (Current)
+## Local setup
 
-**Goal:** Beautiful public site + admin shell + data model.
-
-- [x] Next.js + Tailwind + luxury theme (gold / dark / cream)
-- [x] Home, Services, Book, Contact pages
-- [x] Service categories: Hair, Beard, Nails, Foot, Facial, Packages
-- [x] Sample services with **prices, duration, images**
-- [x] Admin layout: Dashboard, Services table, Billing & Appointments placeholders
-- [x] Prisma schema: User, Service, Appointment, Invoice, Staff, Gallery
-
-**Run locally:**
+1. Firebase Console: enable **Authentication** (Email/Password) and **Firestore**.
+2. Copy `.env.example` → `.env` and fill `NEXT_PUBLIC_FIREBASE_*` + `FIREBASE_SERVICE_ACCOUNT_JSON`.
+3. Install and seed:
 
 ```bash
-cd salon-hasi
+npm install
+npm run db:seed
 npm run dev
 ```
 
-Open: http://localhost:3000 (site) · http://localhost:3000/admin (panel)
+- **Site:** http://localhost:3000  
+- **Admin:** http://localhost:3000/admin/login — `admin@salonhasi.com` / `Admin@123`
 
 ---
 
-## Phase 2 — Database & dynamic content
+## Phase status
 
-**Goal:** Admin edits services; customers book for real.
+### Phase 1 — Foundation ✅
 
-### Step 2.1 — Run migrations
+- Public site, categories, sample services, admin shell
+
+### Phase 2 — Database & dynamic content ✅
+
+- Firestore CRUD via API routes
+- Booking, services, gallery, settings from database
+- Seed script for initial data
+
+### Phase 3 — Admin auth & billing ✅ (core)
+
+- Firebase Auth + role-based admin access
+- Invoices, appointments, messages
+
+### Phase 4 — Polish & production
+
+- Replace stock images with salon photos
+- Email/SMS booking confirmations
+- Deploy on Vercel with production Firebase project
+
+---
+
+## Deploy (Vercel)
+
+Set environment variables in Vercel project settings:
+
+- All `NEXT_PUBLIC_FIREBASE_*` values
+- `FIREBASE_SERVICE_ACCOUNT_JSON` (full JSON string)
+- Optional: `GOOGLE_DRIVE_*` for Drive uploads
 
 ```bash
-npx prisma migrate dev --name init
-npx prisma generate
+npm run build
 ```
 
-### Step 2.2 — Seed database
-
-Create `prisma/seed.ts` with categories + services from `src/data/services.ts`.
-
-Add to `package.json`:
-
-```json
-"prisma": { "seed": "npx tsx prisma/seed.ts" }
-```
-
-Run: `npx prisma db seed`
-
-### Step 2.3 — API routes
-
-| Route | Method | Purpose |
-|-------|--------|---------|
-| `/api/services` | GET | List services (filter by category) |
-| `/api/services` | POST | Admin: create service |
-| `/api/services/[id]` | PATCH/DELETE | Admin: update/delete |
-| `/api/appointments` | POST | Customer booking |
-| `/api/appointments` | GET | Admin: list by date |
-
-### Step 2.4 — Connect pages
-
-- Replace `src/data/services.ts` reads with Prisma in Server Components
-- Booking form → `POST /api/appointments`
-- Admin services → forms with image URL or upload
-
-### Step 2.5 — Service features to implement
-
-| Feature | Admin | Public |
-|---------|-------|--------|
-| Hair styles + prices + images | CRUD | Grid + book |
-| Beard cut types | CRUD | Category page |
-| Nail cleanup / manicure | CRUD | Category page |
-| Foot cleanup / spa | CRUD | Category page |
-| Combo packages | CRUD | Featured section |
+Use Firebase Console to manage data, rules, and indexes.
 
 ---
 
-## Phase 3 — Admin auth & billing
-
-**Goal:** Only staff can access `/admin`; generate invoices.
-
-### Step 3.1 — Authentication
-
-1. Install: `npm install next-auth @auth/prisma-adapter bcryptjs`
-2. Add `User` roles: `ADMIN`, `STAFF`, `CUSTOMER`
-3. Protect `/admin/*` with middleware
-4. Login page: `/admin/login`
-
-### Step 3.2 — Billing module
-
-**Models:** `Invoice`, `InvoiceItem` (already in schema)
-
-**Admin flows:**
-
-1. New invoice → pick customer (or walk-in)
-2. Add line items from services (auto price)
-3. Apply tax % and discount
-4. Mark as Paid → store `paidAt`
-5. Export PDF (use `@react-pdf/renderer` or print CSS)
-
-**Invoice number format:** `SH-2026-0001` (auto-increment)
-
-### Step 3.3 — Link appointment → invoice
-
-When appointment status = `COMPLETED`, offer "Create invoice" with pre-filled services.
-
----
-
-## Phase 4 — Polish & production
-
-### Design
-
-- Replace Unsplash URLs with your salon photos (Cloudinary)
-- Add gallery page from `GalleryImage` model
-- Testimonials, team/staff page
-- WhatsApp "Book now" button
-
-### UX
-
-- Email/SMS confirmation on booking (Resend, Twilio)
-- Loading states, toast notifications (sonner)
-- Mobile-first admin sidebar
-
-### Deploy
-
-1. Push to GitHub
-2. Deploy on [Vercel](https://vercel.com)
-3. Use **Neon** or **Supabase** Postgres — update `DATABASE_URL`
-4. Set env vars: `DATABASE_URL`, `NEXTAUTH_SECRET`, image API keys
-
----
-
-## Feature checklist (full salon)
-
-### Customer site
-
-- [x] Homepage hero & categories
-- [x] Services with prices & images
-- [x] Category pages (hair, beard, nails, foot…)
-- [x] Booking form UI
-- [ ] Online payment / deposit
-- [ ] Customer accounts & booking history
-- [ ] Reviews & gallery
-
-### Admin panel
-
-- [x] Dashboard shell
-- [x] Services list (read-only sample)
-- [ ] Create/edit/delete services + upload images
-- [ ] Appointments calendar
-- [ ] Billing & invoices + PDF
-- [ ] Staff management & schedules
-- [ ] Reports (daily revenue, popular services)
-- [ ] Site settings (phone, hours, address)
-
----
-
-## Recommended timeline
-
-| Week | Focus |
-|------|--------|
-| 1 | Phase 1 ✅ + customize branding & real prices |
-| 2 | Phase 2 — database, booking API, admin CRUD |
-| 3 | Phase 3 — auth, billing, invoices |
-| 4 | Phase 4 — images, notifications, deploy |
-
----
-
-## Customize your salon
-
-Edit `src/lib/constants.ts` for name, phone, address, hours.
-
-Edit `src/data/services.ts` (or database after Phase 2) for your real:
-
-- Haircut types & LKR prices  
-- Beard styles  
-- Nail cleanup / gel / pedicure  
-- Foot cleanup & spa  
-- Packages  
-
----
-
-## Commands reference
+## Commands
 
 ```bash
-npm run dev          # Start development
+npm run dev          # Development server
 npm run build        # Production build
-npx prisma studio    # Visual database browser
-npx prisma migrate dev
+npm run db:seed      # Seed Firestore + create admin (Firebase Auth)
+npm run lint         # ESLint
 ```
 
 ---
 
-## Need help on the next phase?
+## Customize
 
-Ask to implement **Phase 2** (database + booking API + admin CRUD) and we can build it step by step in your project.
+- Branding: `src/lib/constants.ts`
+- Fallback sample data: `src/data/services.ts`, `src/data/gallery.ts`
+- After seed, edit content in admin panel or Firebase Console

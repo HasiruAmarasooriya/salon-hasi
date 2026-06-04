@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { createStaff, listAllStaff } from "@/lib/firestore";
 import { requireAdminApi } from "@/lib/auth/require-admin-api";
 import { staffSchema } from "@/lib/validations/staff";
 
@@ -12,7 +12,7 @@ export async function GET() {
   const { error } = await requireAdminApi();
   if (error) return error;
 
-  const staff = await prisma.staff.findMany({ orderBy: { name: "asc" } });
+  const staff = await listAllStaff();
   return NextResponse.json({ staff });
 }
 
@@ -30,16 +30,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const member = await prisma.staff.create({
-      data: {
-        name: parsed.data.name,
-        title: parsed.data.title ?? null,
-        bio: parsed.data.bio ?? null,
-        imageUrl: normalizeImageUrl(parsed.data.imageUrl),
-        driveFileId: parsed.data.driveFileId ?? null,
-        phone: parsed.data.phone ?? null,
-        isActive: parsed.data.isActive ?? true,
-      },
+    const member = await createStaff({
+      name: parsed.data.name,
+      title: parsed.data.title ?? null,
+      bio: parsed.data.bio ?? null,
+      imageUrl: normalizeImageUrl(parsed.data.imageUrl),
+      driveFileId: parsed.data.driveFileId ?? null,
+      phone: parsed.data.phone ?? null,
+      isActive: parsed.data.isActive ?? true,
     });
 
     return NextResponse.json({ success: true, staff: member });

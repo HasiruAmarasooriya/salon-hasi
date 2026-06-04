@@ -1,10 +1,8 @@
-import { prisma } from "@/lib/db";
+import { listAllGalleryImages } from "@/lib/firestore";
 import { GalleryManager } from "@/components/admin/GalleryManager";
 
 export default async function AdminGalleryPage() {
-  const images = await prisma.galleryImage.findMany({
-    orderBy: { sortOrder: "asc" },
-  });
+  const images = await listAllGalleryImages();
 
   return (
     <div>

@@ -1,4 +1,5 @@
-import { prisma } from "@/lib/db";
+import { listActiveGalleryImages } from "@/lib/firestore";
+import { firestoreReadOrFallback } from "@/lib/firebase/firestore-read";
 import { GALLERY_IMAGES } from "@/data/gallery";
 
 export type GalleryItem = {
@@ -8,19 +9,23 @@ export type GalleryItem = {
   category: string;
 };
 
+function staticGallery(): GalleryItem[] {
+  return GALLERY_IMAGES.map((img) => ({
+    id: img.id,
+    src: img.src,
+    title: img.title,
+    category: img.category,
+  }));
+}
+
 export async function getGalleryImages(): Promise<GalleryItem[]> {
-  const dbImages = await prisma.galleryImage.findMany({
-    where: { isActive: true },
-    orderBy: { sortOrder: "asc" },
-  });
+  const dbImages = await firestoreReadOrFallback(
+    () => listActiveGalleryImages(),
+    [],
+  );
 
   if (dbImages.length === 0) {
-    return GALLERY_IMAGES.map((img) => ({
-      id: img.id,
-      src: img.src,
-      title: img.title,
-      category: img.category,
-    }));
+    return staticGallery();
   }
 
   return dbImages.map((img) => ({

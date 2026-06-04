@@ -1,4 +1,8 @@
-import { prisma } from "@/lib/db";
+import {
+  createUserProfile,
+  findUserByEmail,
+  updateUser,
+} from "@/lib/firestore";
 import type { SessionUser } from "@/lib/auth/session";
 
 export async function resolveBookingCustomer(
@@ -8,38 +12,29 @@ export async function resolveBookingCustomer(
   const normalizedEmail = data.email.toLowerCase().trim();
 
   if (session) {
-    await prisma.user.update({
-      where: { id: session.id },
-      data: {
-        name: data.name.trim(),
-        phone: data.phone.trim(),
-      },
+    await updateUser(session.id, {
+      name: data.name.trim(),
+      phone: data.phone.trim(),
     });
     return session.id;
   }
 
-  const existing = await prisma.user.findUnique({
-    where: { email: normalizedEmail },
-  });
+  const existing = await findUserByEmail(normalizedEmail);
 
   if (existing) {
-    await prisma.user.update({
-      where: { id: existing.id },
-      data: {
-        name: data.name.trim(),
-        phone: data.phone.trim(),
-      },
+    await updateUser(existing.id, {
+      name: data.name.trim(),
+      phone: data.phone.trim(),
     });
     return existing.id;
   }
 
-  const created = await prisma.user.create({
-    data: {
-      email: normalizedEmail,
-      name: data.name.trim(),
-      phone: data.phone.trim(),
-      role: "CUSTOMER",
-    },
+  const created = await createUserProfile(crypto.randomUUID(), {
+    email: normalizedEmail,
+    name: data.name.trim(),
+    phone: data.phone.trim(),
+    role: "CUSTOMER",
+    image: null,
   });
 
   return created.id;

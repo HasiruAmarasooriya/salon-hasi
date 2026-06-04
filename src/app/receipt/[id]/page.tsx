@@ -1,5 +1,7 @@
+export const dynamic = "force-dynamic";
+
 import { notFound, redirect } from "next/navigation";
-import { prisma } from "@/lib/db";
+import { findInvoiceById } from "@/lib/firestore";
 import { getSession, isAdminRole } from "@/lib/auth/session";
 import { getSiteSettings } from "@/lib/settings";
 import { PrintReceiptButton } from "@/components/admin/PrintReceiptButton";
@@ -15,17 +17,14 @@ export default async function ReceiptPage({ params }: Props) {
 
   const { id } = await params;
   const [invoice, site] = await Promise.all([
-    prisma.invoice.findUnique({
-      where: { id },
-      include: {
-        customer: true,
-        items: true,
-      },
-    }),
+    findInvoiceById(id, { includeCustomer: true }),
     getSiteSettings(),
   ]);
 
   if (!invoice) notFound();
+
+  const items = invoice.items ?? [];
+  const customer = invoice.customer;
 
   return (
     <div className="min-h-screen bg-white px-6 py-10 text-zinc-900 print:p-0">
@@ -44,10 +43,10 @@ export default async function ReceiptPage({ params }: Props) {
 
         <div className="mt-8 text-sm">
           <p className="font-medium">Bill to</p>
-          <p>{invoice.customer.name}</p>
-          <p className="text-zinc-600">{invoice.customer.email}</p>
-          {invoice.customer.phone && (
-            <p className="text-zinc-600">{invoice.customer.phone}</p>
+          <p>{customer?.name}</p>
+          <p className="text-zinc-600">{customer?.email}</p>
+          {customer?.phone && (
+            <p className="text-zinc-600">{customer.phone}</p>
           )}
         </div>
 
@@ -59,7 +58,7 @@ export default async function ReceiptPage({ params }: Props) {
             </tr>
           </thead>
           <tbody>
-            {invoice.items.map((item) => (
+            {items.map((item) => (
               <tr key={item.id} className="border-b border-zinc-100">
                 <td className="py-3">{item.description}</td>
                 <td className="py-3 text-right">{formatPrice(item.total)}</td>

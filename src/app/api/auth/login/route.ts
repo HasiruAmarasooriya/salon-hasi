@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import { verifyPassword } from "@/lib/auth/password";
-import {
-  createSessionToken,
-  isAdminRole,
-  setSessionCookie,
-} from "@/lib/auth/session";
+import { signInWithEmailPassword } from "@/lib/firebase/auth-server";
+import { findUserById } from "@/lib/firestore";
+import { isAdminRole, setSessionCookie } from "@/lib/auth/session";
 import { loginSchema } from "@/lib/validations/auth";
 
 export async function POST(request: Request) {
@@ -24,21 +20,12 @@ export async function POST(request: Request) {
     const mode = body.mode === "admin" ? "admin" : "user";
     const normalizedEmail = email.toLowerCase().trim();
 
-    const user = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
+    const auth = await signInWithEmailPassword(normalizedEmail, password);
+    const user = await findUserById(auth.localId);
 
-    if (!user || !user.passwordHash) {
+    if (!user) {
       return NextResponse.json(
-        { error: "Invalid email or password" },
-        { status: 401 },
-      );
-    }
-
-    const valid = await verifyPassword(password, user.passwordHash);
-    if (!valid) {
-      return NextResponse.json(
-        { error: "Invalid email or password" },
+        { error: "Account profile not found. Run npm run db:seed." },
         { status: 401 },
       );
     }
@@ -50,14 +37,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const token = await createSessionToken({
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-    });
-
-    await setSessionCookie(token);
+    await setSessionCookie(auth.idToken);
 
     const redirect =
       mode === "admin" ? "/admin" : isAdminRole(user.role) ? "/admin" : "/account";
@@ -74,9 +54,10 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Login error:", error);
-    return NextResponse.json(
-      { error: "Login failed. Please try again." },
-      { status: 500 },
-    );
+    const message =
+      error instanceof Error && error.message.includes("INVALID")
+        ? "Invalid email or password"
+        : "Login failed. Please try again.";
+    return NextResponse.json({ error: message }, { status: 401 });
   }
 }

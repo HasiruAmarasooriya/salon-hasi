@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import {
+  countAppointmentsWithService,
+  deleteService,
+  findCategoryById,
+  updateService,
+} from "@/lib/firestore";
 import { requireAdminApi } from "@/lib/auth/require-admin-api";
 import { serviceSchema } from "@/lib/validations/service";
 
@@ -32,19 +37,13 @@ export async function PATCH(request: Request, { params }: Params) {
     }
 
     if (data.categoryId) {
-      const category = await prisma.serviceCategory.findUnique({
-        where: { id: data.categoryId },
-      });
+      const category = await findCategoryById(data.categoryId);
       if (!category) {
         return NextResponse.json({ error: "Category not found" }, { status: 400 });
       }
     }
 
-    const service = await prisma.service.update({
-      where: { id },
-      data,
-      include: { category: true },
-    });
+    const service = await updateService(id, data);
 
     return NextResponse.json({ success: true, service });
   } catch (err) {
@@ -63,14 +62,9 @@ export async function DELETE(_request: Request, { params }: Params) {
   const { id } = await params;
 
   try {
-    const linked = await prisma.appointmentService.count({
-      where: { serviceId: id },
-    });
+    const linked = await countAppointmentsWithService(id);
     if (linked > 0) {
-      await prisma.service.update({
-        where: { id },
-        data: { isActive: false },
-      });
+      await updateService(id, { isActive: false });
       return NextResponse.json({
         success: true,
         deactivated: true,
@@ -78,7 +72,7 @@ export async function DELETE(_request: Request, { params }: Params) {
       });
     }
 
-    await prisma.service.delete({ where: { id } });
+    await deleteService(id);
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("Delete service error:", err);

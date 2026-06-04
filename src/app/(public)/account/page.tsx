@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Calendar, User } from "lucide-react";
 import { getSession } from "@/lib/auth/session";
-import { prisma } from "@/lib/db";
+import { listAppointments } from "@/lib/firestore";
 import { PageHero } from "@/components/ui/PageHero";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import {
@@ -20,16 +20,10 @@ export default async function AccountPage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const appointments = await prisma.appointment.findMany({
-    where: { customerId: session.id },
-    include: {
-      staff: { select: { name: true } },
-      services: {
-        include: { service: { select: { name: true } } },
-      },
-    },
-    orderBy: { scheduledAt: "desc" },
-    take: 20,
+  const appointments = await listAppointments({
+    customerId: session.id,
+    includeRelations: true,
+    limit: 20,
   });
 
   return (
@@ -77,7 +71,7 @@ export default async function AccountPage() {
               <ul className="mt-4 space-y-3">
                 {appointments.map((apt) => {
                   const serviceName =
-                    apt.services[0]?.service.name ?? "Service";
+                    apt.services?.[0]?.service?.name ?? "Service";
                   return (
                     <li
                       key={apt.id}

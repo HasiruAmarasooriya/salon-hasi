@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import {
+  deleteGalleryImage,
+  findGalleryById,
+  updateGalleryImage,
+} from "@/lib/firestore";
 import { requireAdminApi } from "@/lib/auth/require-admin-api";
 import { deleteLocalImage } from "@/lib/uploads/local";
 import { galleryImageSchema } from "@/lib/validations/gallery";
@@ -25,10 +29,7 @@ export async function PATCH(request: Request, { params }: Params) {
     const data = { ...parsed.data };
     if (data.imageUrl) data.imageUrl = data.imageUrl.trim();
 
-    const image = await prisma.galleryImage.update({
-      where: { id },
-      data,
-    });
+    const image = await updateGalleryImage(id, data);
 
     return NextResponse.json({ success: true, image });
   } catch (err) {
@@ -47,9 +48,9 @@ export async function DELETE(_request: Request, { params }: Params) {
   const { id } = await params;
 
   try {
-    const existing = await prisma.galleryImage.findUnique({ where: { id } });
+    const existing = await findGalleryById(id);
 
-    await prisma.galleryImage.delete({ where: { id } });
+    await deleteGalleryImage(id);
 
     if (existing?.imageUrl) {
       await deleteLocalImage(existing.imageUrl);

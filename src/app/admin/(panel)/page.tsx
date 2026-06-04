@@ -1,51 +1,40 @@
 import Link from "next/link";
 import { Calendar, Receipt, Scissors, Users, MessageSquare, Upload } from "lucide-react";
-import { prisma } from "@/lib/db";
+import {
+  countServices,
+  countStaff,
+  countAppointments,
+  sumAppointmentTotals,
+  countUnreadMessages,
+  listAppointments,
+} from "@/lib/firestore";
 import { formatPrice } from "@/lib/utils";
 
 export default async function AdminDashboardPage() {
-  const startOfDay = new Date();
-  startOfDay.setHours(0, 0, 0, 0);
-  const endOfDay = new Date();
-  endOfDay.setHours(23, 59, 59, 999);
-
-  const startOfMonth = new Date();
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0, 0, 0, 0);
-
   const [
     serviceCount,
     staffCount,
-    todayAppointments,
-    monthRevenue,
-    pendingCount,
+    appointmentCount,
+    totalRevenue,
     unreadMessages,
+    appointments,
   ] = await Promise.all([
-    prisma.service.count({ where: { isActive: true } }),
-    prisma.staff.count({ where: { isActive: true } }),
-    prisma.appointment.count({
-      where: {
-        scheduledAt: { gte: startOfDay, lte: endOfDay },
-        status: { notIn: ["CANCELLED", "NO_SHOW"] },
-      },
-    }),
-    prisma.appointment.aggregate({
-      where: {
-        scheduledAt: { gte: startOfMonth },
-        status: "COMPLETED",
-      },
-      _sum: { totalAmount: true },
-    }),
-    prisma.appointment.count({ where: { status: "PENDING" } }),
-    prisma.contactMessage.count({ where: { isRead: false } }),
+    countServices(),
+    countStaff(),
+    countAppointments(),
+    sumAppointmentTotals(),
+    countUnreadMessages(),
+    listAppointments({}),
   ]);
 
+  const pendingCount = appointments.filter((a) => a.status === "PENDING").length;
+
   const stats = [
-    { label: "Active Services", value: String(serviceCount), icon: Scissors },
-    { label: "Today's Appointments", value: String(todayAppointments), icon: Calendar },
+    { label: "Services", value: String(serviceCount), icon: Scissors },
+    { label: "Appointments", value: String(appointmentCount), icon: Calendar },
     {
-      label: "Revenue (Month)",
-      value: formatPrice(monthRevenue._sum.totalAmount ?? 0),
+      label: "Total Revenue",
+      value: formatPrice(totalRevenue),
       icon: Receipt,
     },
     { label: "Staff", value: String(staffCount), icon: Users },

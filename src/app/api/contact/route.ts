@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { createContactMessage } from "@/lib/firestore";
 import { contactMessageSchema } from "@/lib/validations/contact";
 
 export async function POST(request: Request) {
@@ -16,13 +16,11 @@ export async function POST(request: Request) {
 
     const { name, email, phone, message } = parsed.data;
 
-    await prisma.contactMessage.create({
-      data: {
-        name: name.trim(),
-        email: email.toLowerCase().trim(),
-        phone: phone?.trim() || null,
-        message: message.trim(),
-      },
+    await createContactMessage({
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      phone: phone?.trim() || null,
+      message: message.trim(),
     });
 
     return NextResponse.json({ success: true });

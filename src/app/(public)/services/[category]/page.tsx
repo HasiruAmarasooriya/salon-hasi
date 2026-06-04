@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { STOCK_IMAGES } from "@/lib/constants";
 import {
   getCategoryBySlug,
-  getPublicCategories,
   getServicesByCategorySlug,
 } from "@/lib/services/catalog";
 import { ServiceCard } from "@/components/services/ServiceCard";
@@ -21,11 +20,6 @@ const categoryImages: Record<string, string> = {
 };
 
 export const dynamic = "force-dynamic";
-
-export async function generateStaticParams() {
-  const categories = await getPublicCategories();
-  return categories.map((c) => ({ category: c.slug }));
-}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params;

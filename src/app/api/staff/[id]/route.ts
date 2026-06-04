@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import {
+  countAppointmentsForStaff,
+  deleteStaff,
+  updateStaff,
+} from "@/lib/firestore";
 import { requireAdminApi } from "@/lib/auth/require-admin-api";
 import { staffSchema } from "@/lib/validations/staff";
 
@@ -31,10 +35,7 @@ export async function PATCH(request: Request, { params }: Params) {
       data.imageUrl = normalizeImageUrl(data.imageUrl);
     }
 
-    const staff = await prisma.staff.update({
-      where: { id },
-      data,
-    });
+    const staff = await updateStaff(id, data);
 
     return NextResponse.json({ success: true, staff });
   } catch (err) {
@@ -53,12 +54,9 @@ export async function DELETE(_request: Request, { params }: Params) {
   const { id } = await params;
 
   try {
-    const appointments = await prisma.appointment.count({ where: { staffId: id } });
+    const appointments = await countAppointmentsForStaff(id);
     if (appointments > 0) {
-      await prisma.staff.update({
-        where: { id },
-        data: { isActive: false },
-      });
+      await updateStaff(id, { isActive: false });
       return NextResponse.json({
         success: true,
         deactivated: true,
@@ -66,7 +64,7 @@ export async function DELETE(_request: Request, { params }: Params) {
       });
     }
 
-    await prisma.staff.delete({ where: { id } });
+    await deleteStaff(id);
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("Delete staff error:", err);

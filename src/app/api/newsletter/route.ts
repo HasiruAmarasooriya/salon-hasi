@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { getSiteSetting, upsertSiteSetting } from "@/lib/firestore";
 import { z } from "zod";
 
 const schema = z.object({
@@ -21,16 +21,12 @@ export async function POST(request: Request) {
     }
 
     const email = parsed.data.email.toLowerCase().trim();
-    const existing = await prisma.siteSetting.findUnique({ where: { key: KEY } });
-    const list: string[] = existing ? JSON.parse(existing.value) : [];
+    const existing = await getSiteSetting(KEY);
+    const list: string[] = existing ? JSON.parse(existing) : [];
 
     if (!list.includes(email)) {
       list.push(email);
-      await prisma.siteSetting.upsert({
-        where: { key: KEY },
-        update: { value: JSON.stringify(list) },
-        create: { key: KEY, value: JSON.stringify(list) },
-      });
+      await upsertSiteSetting(KEY, JSON.stringify(list));
     }
 
     return NextResponse.json({ success: true });

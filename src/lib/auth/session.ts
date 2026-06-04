@@ -1,6 +1,7 @@
-import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import type { Role } from "@/generated/prisma/client";
+import { verifyFirebaseIdToken } from "@/lib/firebase/auth-server";
+import { findUserById } from "@/lib/firestore";
+import type { Role } from "@/lib/types/database";
 
 export const SESSION_COOKIE = "salon_session";
 
@@ -11,41 +12,18 @@ export type SessionUser = {
   role: Role;
 };
 
-type SessionPayload = SessionUser & {
-  exp?: number;
-};
-
-function getSecret() {
-  const secret = process.env.AUTH_SECRET;
-  if (!secret) {
-    throw new Error("AUTH_SECRET is not set in environment variables");
-  }
-  return new TextEncoder().encode(secret);
-}
-
-export async function createSessionToken(user: SessionUser) {
-  return new SignJWT({
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role,
-  })
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("7d")
-    .sign(getSecret());
-}
-
-export async function verifySessionToken(token: string): Promise<SessionUser | null> {
+export async function verifySessionToken(
+  token: string,
+): Promise<SessionUser | null> {
   try {
-    const { payload } = await jwtVerify(token, getSecret());
-    const data = payload as SessionPayload;
-    if (!data.id || !data.email || !data.role) return null;
+    const decoded = await verifyFirebaseIdToken(token);
+    const profile = await findUserById(decoded.uid);
+    if (!profile) return null;
     return {
-      id: data.id,
-      email: data.email,
-      name: data.name ?? null,
-      role: data.role,
+      id: profile.id,
+      email: profile.email,
+      name: profile.name,
+      role: profile.role,
     };
   } catch {
     return null;
@@ -59,9 +37,9 @@ export async function getSession(): Promise<SessionUser | null> {
   return verifySessionToken(token);
 }
 
-export async function setSessionCookie(token: string) {
+export async function setSessionCookie(idToken: string) {
   const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, token, {
+  cookieStore.set(SESSION_COOKIE, idToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

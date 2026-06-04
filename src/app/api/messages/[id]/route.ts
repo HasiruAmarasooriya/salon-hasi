@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { deleteContactMessage } from "@/lib/firestore";
 import { requireAdminApi } from "@/lib/auth/require-admin-api";
 
 type Params = { params: Promise<{ id: string }> };
@@ -11,7 +11,7 @@ export async function DELETE(_request: Request, { params }: Params) {
   const { id } = await params;
 
   try {
-    await prisma.contactMessage.delete({ where: { id } });
+    await deleteContactMessage(id);
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("Delete message error:", err);

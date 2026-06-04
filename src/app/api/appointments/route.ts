@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import {
+  createAppointment,
+  findActiveServiceBySlug,
+  findActiveStaffById,
+  listAppointments,
+} from "@/lib/firestore";
 import { getSession, isAdminRole } from "@/lib/auth/session";
 import { resolveBookingCustomer } from "@/lib/appointments";
 import { bookAppointmentSchema } from "@/lib/validations/appointment";
@@ -10,21 +15,10 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const where = isAdminRole(session.role)
-    ? {}
-    : { customerId: session.id };
-
-  const appointments = await prisma.appointment.findMany({
-    where,
-    include: {
-      customer: { select: { name: true, email: true, phone: true } },
-      staff: { select: { name: true } },
-      services: {
-        include: { service: { select: { name: true, slug: true } } },
-      },
-    },
-    orderBy: { scheduledAt: "desc" },
-    take: 50,
+  const appointments = await listAppointments({
+    customerId: isAdminRole(session.role) ? undefined : session.id,
+    limit: 50,
+    includeRelations: true,
   });
 
   return NextResponse.json({ appointments });
@@ -57,18 +51,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const service = await prisma.service.findFirst({
-      where: { slug: serviceSlug, isActive: true },
-    });
+    const service = await findActiveServiceBySlug(serviceSlug);
 
     if (!service) {
       return NextResponse.json({ error: "Service not found" }, { status: 404 });
     }
 
     if (staffId) {
-      const staff = await prisma.staff.findFirst({
-        where: { id: staffId, isActive: true },
-      });
+      const staff = await findActiveStaffById(staffId);
       if (!staff) {
         return NextResponse.json({ error: "Stylist not found" }, { status: 404 });
       }
@@ -81,24 +71,20 @@ export async function POST(request: Request) {
       phone,
     });
 
-    const appointment = await prisma.appointment.create({
-      data: {
-        customerId,
-        staffId: staffId || null,
-        scheduledAt: scheduledDate,
-        notes: notes?.trim() || null,
-        totalAmount: service.price,
-        status: "PENDING",
-        services: {
-          create: {
-            serviceId: service.id,
-            price: service.price,
-          },
+    const appointment = await createAppointment({
+      customerId,
+      staffId: staffId || null,
+      scheduledAt: scheduledDate,
+      notes: notes?.trim() || null,
+      totalAmount: service.price,
+      status: "PENDING",
+      services: [
+        {
+          serviceId: service.id,
+          price: service.price,
+          serviceName: service.name,
         },
-      },
-      include: {
-        services: { include: { service: { select: { name: true } } } },
-      },
+      ],
     });
 
     return NextResponse.json({
@@ -106,7 +92,7 @@ export async function POST(request: Request) {
       appointment: {
         id: appointment.id,
         scheduledAt: appointment.scheduledAt,
-        serviceName: appointment.services[0]?.service.name,
+        serviceName: appointment.services?.[0]?.service?.name,
       },
     });
   } catch (error) {

@@ -1,16 +1,10 @@
-import { prisma } from "@/lib/db";
+import { markAllMessagesRead, listContactMessages } from "@/lib/firestore";
 import { MessagesManager } from "@/components/admin/MessagesManager";
 
 export default async function AdminMessagesPage() {
-  await prisma.contactMessage.updateMany({
-    where: { isRead: false },
-    data: { isRead: true },
-  });
+  await markAllMessagesRead();
 
-  const messages = await prisma.contactMessage.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 50,
-  });
+  const messages = (await listContactMessages()).slice(0, 50);
 
   return (
     <div>

@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { DirectImageUploader } from "@/components/admin/DirectImageUploader";
-import { prisma } from "@/lib/db";
+import { listAllGalleryImages } from "@/lib/firestore";
 
 export default async function AdminUploadsPage() {
-  const recentImages = await prisma.galleryImage.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 8,
-  });
+  const recentImages = (await listAllGalleryImages())
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .slice(0, 8);
 
   return (
     <div>

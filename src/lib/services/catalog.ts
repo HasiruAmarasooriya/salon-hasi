@@ -1,6 +1,12 @@
-import { prisma } from "@/lib/db";
+import {
+  listActiveCategories,
+  listActiveServices,
+  listActiveStaff,
+} from "@/lib/firestore";
+import { firestoreReadOrFallback } from "@/lib/firebase/firestore-read";
 import { SERVICE_CATEGORIES } from "@/lib/constants";
 import { SERVICES, type ServiceItem } from "@/data/services";
+import type { ServiceCategory, ServiceWithCategory, Staff } from "@/lib/types/database";
 
 function mapDbService(
   s: {
@@ -36,19 +42,23 @@ export type PublicCategory = {
   icon: string;
 };
 
+function staticCategories(): PublicCategory[] {
+  return SERVICE_CATEGORIES.map((c) => ({
+    slug: c.slug,
+    name: c.name,
+    description: c.description,
+    icon: c.icon,
+  }));
+}
+
 export async function getPublicCategories(): Promise<PublicCategory[]> {
-  const dbCategories = await prisma.serviceCategory.findMany({
-    where: { isActive: true },
-    orderBy: { sortOrder: "asc" },
-  });
+  const dbCategories = await firestoreReadOrFallback(
+    () => listActiveCategories(),
+    [] as ServiceCategory[],
+  );
 
   if (dbCategories.length === 0) {
-    return SERVICE_CATEGORIES.map((c) => ({
-      slug: c.slug,
-      name: c.name,
-      description: c.description,
-      icon: c.icon,
-    }));
+    return staticCategories();
   }
 
   return dbCategories.map((c) => ({
@@ -60,12 +70,10 @@ export async function getPublicCategories(): Promise<PublicCategory[]> {
 }
 
 export async function getPublicServices(): Promise<ServiceItem[]> {
-  const dbServices = await prisma.service.findMany({
-    where: { isActive: true },
-    include: { category: true },
-    orderBy: [{ category: { sortOrder: "asc" } }, { sortOrder: "asc" }],
-  });
-
+  const dbServices = await firestoreReadOrFallback(
+    () => listActiveServices(),
+    [] as ServiceWithCategory[],
+  );
   const fallbackImage = SERVICES[0]?.imageUrl ?? "";
 
   if (dbServices.length === 0) return SERVICES;
@@ -101,8 +109,5 @@ export async function getCategoryBySlug(slug: string) {
 }
 
 export async function getActiveStaff() {
-  return prisma.staff.findMany({
-    where: { isActive: true },
-    orderBy: { name: "asc" },
-  });
+  return firestoreReadOrFallback(() => listActiveStaff(), [] as Staff[]);
 }

@@ -1,4 +1,5 @@
-import { prisma } from "@/lib/db";
+import { getSiteSettingsByKeys, upsertSiteSetting } from "@/lib/firestore";
+import { firestoreReadOrFallback } from "@/lib/firebase/firestore-read";
 import { SITE } from "@/lib/constants";
 
 const SETTING_KEYS = [
@@ -19,19 +20,31 @@ export type SiteSettings = {
   promoGroom: string;
 };
 
-export async function getSiteSettings(): Promise<SiteSettings> {
-  const rows = await prisma.siteSetting.findMany({
-    where: { key: { in: [...SETTING_KEYS] } },
-  });
-  const map = Object.fromEntries(rows.map((r) => [r.key, r.value]));
-
+function defaultSiteSettings(): SiteSettings {
   return {
-    phone: map.site_phone ?? SITE.phone,
-    email: map.site_email ?? SITE.email,
-    address: map.site_address ?? SITE.address,
-    hours: map.site_hours ?? SITE.hours,
-    promoWeekend: map.promo_weekend ?? "Weekend Glow — 15% off facials Sat & Sun",
-    promoGroom: map.promo_groom ?? "Groom Package — save LKR 1,200 this month",
+    phone: SITE.phone,
+    email: SITE.email,
+    address: SITE.address,
+    hours: SITE.hours,
+    promoWeekend: "Weekend Glow — 15% off facials Sat & Sun",
+    promoGroom: "Groom Package — save LKR 1,200 this month",
+  };
+}
+
+export async function getSiteSettings(): Promise<SiteSettings> {
+  const map = await firestoreReadOrFallback(
+    () => getSiteSettingsByKeys([...SETTING_KEYS]),
+    {} as Record<string, string>,
+  );
+
+  const defaults = defaultSiteSettings();
+  return {
+    phone: map.site_phone ?? defaults.phone,
+    email: map.site_email ?? defaults.email,
+    address: map.site_address ?? defaults.address,
+    hours: map.site_hours ?? defaults.hours,
+    promoWeekend: map.promo_weekend ?? defaults.promoWeekend,
+    promoGroom: map.promo_groom ?? defaults.promoGroom,
   };
 }
 
@@ -46,10 +59,6 @@ export async function updateSiteSettings(data: Partial<SiteSettings>) {
   if (data.promoGroom !== undefined) entries.push(["promo_groom", data.promoGroom]);
 
   for (const [key, value] of entries) {
-    await prisma.siteSetting.upsert({
-      where: { key },
-      update: { value },
-      create: { key, value },
-    });
+    await upsertSiteSetting(key, value);
   }
 }

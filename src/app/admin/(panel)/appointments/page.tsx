@@ -1,19 +1,11 @@
-import { prisma } from "@/lib/db";
+import { listAppointments } from "@/lib/firestore";
 import { AppointmentStatusSelect } from "@/components/admin/AppointmentStatusSelect";
 import { formatDateTime, formatPrice } from "@/lib/utils";
 
 export default async function AdminAppointmentsPage() {
-  const appointments = await prisma.appointment.findMany({
-    include: {
-      customer: { select: { name: true, email: true, phone: true } },
-      staff: { select: { name: true } },
-      services: {
-        include: { service: { select: { name: true } } },
-      },
-    },
-    orderBy: { scheduledAt: "asc" },
-    take: 100,
-  });
+  const appointments = (
+    await listAppointments({ includeRelations: true, limit: 100 })
+  ).sort((a, b) => a.scheduledAt.getTime() - b.scheduledAt.getTime());
 
   return (
     <div>
@@ -44,13 +36,15 @@ export default async function AdminAppointmentsPage() {
                 <tr key={apt.id} className="border-b border-zinc-100 last:border-0">
                   <td className="px-4 py-3">
                     <p className="font-medium text-zinc-900">
-                      {apt.customer.name ?? "—"}
+                      {apt.customer?.name ?? "—"}
                     </p>
-                    <p className="text-xs text-zinc-500">{apt.customer.phone}</p>
-                    <p className="text-xs text-zinc-400">{apt.customer.email}</p>
+                    <p className="text-xs text-zinc-500">{apt.customer?.phone}</p>
+                    <p className="text-xs text-zinc-400">{apt.customer?.email}</p>
                   </td>
                   <td className="px-4 py-3 text-zinc-700">
-                    {apt.services.map((s) => s.service.name).join(", ")}
+                    {(apt.services ?? [])
+                      .map((s) => s.service?.name ?? "Service")
+                      .join(", ")}
                   </td>
                   <td className="px-4 py-3 text-zinc-700">
                     {formatDateTime(apt.scheduledAt)}

@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import {
+  createCategory,
+  findCategoryBySlug,
+  listAllCategories,
+} from "@/lib/firestore";
 import { requireAdminApi } from "@/lib/auth/require-admin-api";
-import { uniqueSlug, slugify } from "@/lib/slug";
+import { uniqueSlug } from "@/lib/slug";
 import { serviceCategorySchema } from "@/lib/validations/service";
 
 export async function GET() {
   const { error } = await requireAdminApi();
   if (error) return error;
 
-  const categories = await prisma.serviceCategory.findMany({
-    orderBy: { sortOrder: "asc" },
-  });
+  const categories = await listAllCategories();
   return NextResponse.json({ categories });
 }
 
@@ -29,19 +31,17 @@ export async function POST(request: Request) {
     }
 
     const slug = await uniqueSlug(parsed.data.name, async (s) => {
-      const row = await prisma.serviceCategory.findUnique({ where: { slug: s } });
+      const row = await findCategoryBySlug(s);
       return !!row;
     });
 
-    const category = await prisma.serviceCategory.create({
-      data: {
-        slug,
-        name: parsed.data.name,
-        description: parsed.data.description ?? null,
-        icon: parsed.data.icon ?? null,
-        sortOrder: parsed.data.sortOrder ?? 0,
-        isActive: parsed.data.isActive ?? true,
-      },
+    const category = await createCategory({
+      slug,
+      name: parsed.data.name,
+      description: parsed.data.description ?? null,
+      icon: parsed.data.icon ?? null,
+      sortOrder: parsed.data.sortOrder ?? 0,
+      isActive: parsed.data.isActive ?? true,
     });
 
     return NextResponse.json({ success: true, category });

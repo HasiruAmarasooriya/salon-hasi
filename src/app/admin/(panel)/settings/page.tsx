@@ -1,15 +1,15 @@
 import { getSiteSettings } from "@/lib/settings";
+import { getSiteSetting } from "@/lib/firestore";
 import { SettingsForm } from "@/components/admin/SettingsForm";
-import { prisma } from "@/lib/db";
 
 export default async function AdminSettingsPage() {
   const [settings, newsletter] = await Promise.all([
     getSiteSettings(),
-    prisma.siteSetting.findUnique({ where: { key: "newsletter_emails" } }),
+    getSiteSetting("newsletter_emails"),
   ]);
 
   const subscriberCount = newsletter
-    ? (JSON.parse(newsletter.value) as string[]).length
+    ? (JSON.parse(newsletter) as string[]).length
     : 0;
 
   return (

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { deleteCategory, updateCategory } from "@/lib/firestore";
 import { requireAdminApi } from "@/lib/auth/require-admin-api";
 import { serviceCategorySchema } from "@/lib/validations/service";
 
@@ -21,10 +21,7 @@ export async function PATCH(request: Request, { params }: Params) {
       );
     }
 
-    const category = await prisma.serviceCategory.update({
-      where: { id },
-      data: parsed.data,
-    });
+    const category = await updateCategory(id, parsed.data);
 
     return NextResponse.json({ success: true, category });
   } catch (err) {
@@ -43,7 +40,7 @@ export async function DELETE(_request: Request, { params }: Params) {
   const { id } = await params;
 
   try {
-    await prisma.serviceCategory.delete({ where: { id } });
+    await deleteCategory(id);
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("Delete category error:", err);

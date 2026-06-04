@@ -1,15 +1,10 @@
-import { prisma } from "@/lib/db";
+import { listAllServices, listAllCategories } from "@/lib/firestore";
 import { ServicesManager } from "@/components/admin/ServicesManager";
 
 export default async function AdminServicesPage() {
   const [services, categories] = await Promise.all([
-    prisma.service.findMany({
-      include: { category: true },
-      orderBy: [{ category: { name: "asc" } }, { name: "asc" }],
-    }),
-    prisma.serviceCategory.findMany({
-      orderBy: { sortOrder: "asc" },
-    }),
+    listAllServices(),
+    listAllCategories(),
   ]);
 
   return (

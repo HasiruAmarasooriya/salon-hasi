@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { createGalleryImage, listAllGalleryImages } from "@/lib/firestore";
 import { requireAdminApi } from "@/lib/auth/require-admin-api";
 import { galleryImageSchema } from "@/lib/validations/gallery";
 
@@ -7,9 +7,7 @@ export async function GET() {
   const { error } = await requireAdminApi();
   if (error) return error;
 
-  const images = await prisma.galleryImage.findMany({
-    orderBy: { sortOrder: "asc" },
-  });
+  const images = await listAllGalleryImages();
   return NextResponse.json({ images });
 }
 
@@ -27,15 +25,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const image = await prisma.galleryImage.create({
-      data: {
-        title: parsed.data.title ?? null,
-        imageUrl: parsed.data.imageUrl.trim(),
-        driveFileId: parsed.data.driveFileId ?? null,
-        category: parsed.data.category ?? null,
-        sortOrder: parsed.data.sortOrder ?? 0,
-        isActive: parsed.data.isActive ?? true,
-      },
+    const image = await createGalleryImage({
+      title: parsed.data.title ?? null,
+      imageUrl: parsed.data.imageUrl.trim(),
+      driveFileId: parsed.data.driveFileId ?? null,
+      category: parsed.data.category ?? null,
+      sortOrder: parsed.data.sortOrder ?? 0,
+      isActive: parsed.data.isActive ?? true,
     });
 
     return NextResponse.json({ success: true, image });

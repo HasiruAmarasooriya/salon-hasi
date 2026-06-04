@@ -3,7 +3,7 @@ import { BookForm } from "@/components/book/BookForm";
 import { getSession } from "@/lib/auth/session";
 import { getActiveStaff, getBookableServices } from "@/lib/services/catalog";
 import { PAGE_COVERS } from "@/lib/constants";
-import { prisma } from "@/lib/db";
+import { findUserById } from "@/lib/firestore";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -22,10 +22,7 @@ export default async function BookPage({ searchParams }: Props) {
 
   let userDefaults = { name: "", email: "", phone: "" };
   if (session) {
-    const user = await prisma.user.findUnique({
-      where: { id: session.id },
-      select: { name: true, email: true, phone: true },
-    });
+    const user = await findUserById(session.id);
     if (user) {
       userDefaults = {
         name: user.name ?? "",

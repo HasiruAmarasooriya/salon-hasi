@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { updateAppointment } from "@/lib/firestore";
 import { getSession, isAdminRole } from "@/lib/auth/session";
 import { createInvoiceFromAppointment } from "@/lib/invoices";
 import { updateAppointmentStatusSchema } from "@/lib/validations/appointment";
@@ -23,9 +23,8 @@ export async function PATCH(request: Request, { params }: Params) {
     );
   }
 
-  const appointment = await prisma.appointment.update({
-    where: { id },
-    data: { status: parsed.data.status },
+  const appointment = await updateAppointment(id, {
+    status: parsed.data.status,
   });
 
   if (parsed.data.status === "COMPLETED") {

@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import { hashPassword } from "@/lib/auth/password";
-import { createSessionToken, setSessionCookie } from "@/lib/auth/session";
+import { signUpWithEmailPassword } from "@/lib/firebase/auth-server";
+import {
+  createUserProfile,
+  findUserByEmail,
+} from "@/lib/firestore";
+import { setSessionCookie } from "@/lib/auth/session";
 import { registerSchema } from "@/lib/validations/auth";
 
 export async function POST(request: Request) {
@@ -19,10 +22,7 @@ export async function POST(request: Request) {
     const { name, email, phone, password } = parsed.data;
     const normalizedEmail = email.toLowerCase().trim();
 
-    const existing = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
-
+    const existing = await findUserByEmail(normalizedEmail);
     if (existing) {
       return NextResponse.json(
         { error: "An account with this email already exists" },
@@ -30,26 +30,21 @@ export async function POST(request: Request) {
       );
     }
 
-    const passwordHash = await hashPassword(password);
+    const auth = await signUpWithEmailPassword(
+      normalizedEmail,
+      password,
+      name.trim(),
+    );
 
-    const user = await prisma.user.create({
-      data: {
-        name: name.trim(),
-        email: normalizedEmail,
-        phone: phone?.trim() || null,
-        passwordHash,
-        role: "CUSTOMER",
-      },
+    const user = await createUserProfile(auth.localId, {
+      email: normalizedEmail,
+      name: name.trim(),
+      phone: phone?.trim() || null,
+      role: "CUSTOMER",
+      image: null,
     });
 
-    const token = await createSessionToken({
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-    });
-
-    await setSessionCookie(token);
+    await setSessionCookie(auth.idToken);
 
     return NextResponse.json({
       success: true,
@@ -62,9 +57,10 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Register error:", error);
-    return NextResponse.json(
-      { error: "Registration failed. Please try again." },
-      { status: 500 },
-    );
+    const message =
+      error instanceof Error && error.message.includes("EMAIL_EXISTS")
+        ? "An account with this email already exists"
+        : "Registration failed. Please try again.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

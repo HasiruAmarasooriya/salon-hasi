@@ -1,32 +1,19 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtVerify } from "jose";
+import { verifyFirebaseIdToken } from "@/lib/firebase/auth-server";
+import { findUserById } from "@/lib/firestore";
 
 const SESSION_COOKIE = "salon_session";
-
-type TokenPayload = {
-  id?: string;
-  role?: string;
-};
-
-function getSecret() {
-  const secret = process.env.AUTH_SECRET;
-  if (!secret) return null;
-  return new TextEncoder().encode(secret);
-}
 
 async function getUserFromRequest(request: NextRequest) {
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   if (!token) return null;
 
-  const secret = getSecret();
-  if (!secret) return null;
-
   try {
-    const { payload } = await jwtVerify(token, secret);
-    const data = payload as TokenPayload;
-    if (!data.id || !data.role) return null;
-    return { id: data.id, role: data.role };
+    const decoded = await verifyFirebaseIdToken(token);
+    const profile = await findUserById(decoded.uid);
+    if (!profile) return null;
+    return { id: profile.id, role: profile.role };
   } catch {
     return null;
   }

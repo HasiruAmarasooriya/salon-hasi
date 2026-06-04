@@ -1,10 +1,8 @@
-import { prisma } from "@/lib/db";
+import { listAllStaff } from "@/lib/firestore";
 import { StaffManager } from "@/components/admin/StaffManager";
 
 export default async function AdminStaffPage() {
-  const staff = await prisma.staff.findMany({
-    orderBy: { name: "asc" },
-  });
+  const staff = await listAllStaff();
 
   return (
     <div>
