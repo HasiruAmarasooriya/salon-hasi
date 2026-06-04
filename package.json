@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/rebuild-sqlite-native.cjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -12,7 +13,7 @@
     "db:generate": "prisma generate",
     "db:seed": "node node_modules/tsx/dist/cli.mjs prisma/seed.ts",
     "rebuild:sqlite": "node scripts/rebuild-sqlite-native.cjs",
-    "postinstall": "node scripts/rebuild-sqlite-native.cjs"
+    "postinstall": "node scripts/rebuild-sqlite-native.cjs && prisma generate"
   },
   "prisma": {
     "seed": "node node_modules/tsx/dist/cli.mjs prisma/seed.ts"
@@ -21,7 +22,7 @@
     "@prisma/adapter-better-sqlite3": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "bcryptjs": "^3.0.3",
-    "better-sqlite3": "^11.10.0",
+    "better-sqlite3": "^12.10.0",
     "clsx": "^2.1.1",
     "dotenv": "^16.6.1",
     "jose": "^6.2.3",

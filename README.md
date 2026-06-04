@@ -7,6 +7,7 @@ Premium salon website built with **Next.js**, **Tailwind CSS**, and **Prisma**.
 ```bash
 cd salon-hasi
 npm install
+npm run db:generate   # only if postinstall was skipped
 npm run dev
 ```
 
