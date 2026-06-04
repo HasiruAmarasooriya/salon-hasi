@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { SERVICE_CATEGORIES, STOCK_IMAGES } from "@/lib/constants";
+import { STOCK_IMAGES } from "@/lib/constants";
+import { getPublicCategories } from "@/lib/services/catalog";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const categoryImages: Record<string, string> = {
@@ -13,7 +14,9 @@ const categoryImages: Record<string, string> = {
   packages: "https://images.unsplash.com/photo-1560066984-138d9834f42d?w=600&q=80",
 };
 
-export function Categories() {
+export async function Categories() {
+  const categories = await getPublicCategories();
+
   return (
     <section className="bg-[var(--cream)] py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -24,7 +27,7 @@ export function Categories() {
         />
 
         <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {SERVICE_CATEGORIES.map((cat, index) => (
+          {categories.map((cat, index) => (
             <Link
               key={cat.slug}
               href={`/services/${cat.slug}`}

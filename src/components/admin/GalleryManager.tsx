@@ -6,14 +6,12 @@ import { useState } from "react";
 import { Loader2, Pencil, Plus } from "lucide-react";
 import { AdminModal, adminInputClass, adminLabelClass } from "@/components/admin/AdminModal";
 import { ConfirmDeleteButton } from "@/components/admin/ConfirmDeleteButton";
-import { DriveImageUpload } from "@/components/admin/DriveImageUpload";
-import { resolveGalleryImageSrc } from "@/lib/google-drive/urls";
+import { LocalImageUpload } from "@/components/admin/LocalImageUpload";
 
 export type GalleryRow = {
   id: string;
   title: string | null;
   imageUrl: string;
-  driveFileId: string | null;
   category: string | null;
   sortOrder: number;
   isActive: boolean;
@@ -26,7 +24,6 @@ type Props = {
 const emptyImage = {
   title: "",
   imageUrl: "",
-  driveFileId: null as string | null,
   category: "",
   sortOrder: 0,
   isActive: true,
@@ -51,7 +48,6 @@ export function GalleryManager({ initialImages }: Props) {
     setForm({
       title: img.title ?? "",
       imageUrl: img.imageUrl,
-      driveFileId: img.driveFileId,
       category: img.category ?? "",
       sortOrder: img.sortOrder,
       isActive: img.isActive,
@@ -64,7 +60,7 @@ export function GalleryManager({ initialImages }: Props) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.imageUrl) {
-      setError("Please upload an image to Google Drive first.");
+      setError("Please upload an image first.");
       return;
     }
 
@@ -130,7 +126,7 @@ export function GalleryManager({ initialImages }: Props) {
 
       {initialImages.length === 0 ? (
         <div className="mt-8 rounded-xl border border-dashed border-zinc-300 bg-white p-12 text-center text-zinc-500">
-          No gallery images yet. Click &quot;Add image&quot; to upload to Google Drive.
+          No gallery images yet. Upload one to show it on the website.
         </div>
       ) : (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -141,20 +137,17 @@ export function GalleryManager({ initialImages }: Props) {
             >
               <div className="relative aspect-[4/3] bg-zinc-100">
                 <Image
-                  src={resolveGalleryImageSrc(img.imageUrl, img.driveFileId)}
+                  src={img.imageUrl}
                   alt={img.title ?? "Gallery"}
                   fill
                   className="object-cover"
                   sizes="300px"
-                  unoptimized={Boolean(img.driveFileId)}
+                  unoptimized={img.imageUrl.startsWith("/uploads/")}
                 />
               </div>
               <div className="p-4">
                 <p className="font-medium text-zinc-900">{img.title ?? "Untitled"}</p>
                 <p className="text-xs text-zinc-500">{img.category}</p>
-                {img.driveFileId && (
-                  <p className="mt-1 text-xs text-zinc-400">Stored in Google Drive</p>
-                )}
                 <p className="mt-2 text-xs">
                   {img.isActive ? (
                     <span className="text-emerald-600">Visible on site</span>
@@ -185,13 +178,11 @@ export function GalleryManager({ initialImages }: Props) {
         onClose={() => setModal(null)}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <DriveImageUpload
+          <LocalImageUpload
+            label="Gallery photo"
             imageUrl={form.imageUrl}
-            driveFileId={form.driveFileId}
             required={modal === "add"}
-            onChange={({ imageUrl, driveFileId }) =>
-              setForm({ ...form, imageUrl, driveFileId })
-            }
+            onChange={(imageUrl) => setForm({ ...form, imageUrl })}
           />
           <div>
             <label className={adminLabelClass}>Title</label>

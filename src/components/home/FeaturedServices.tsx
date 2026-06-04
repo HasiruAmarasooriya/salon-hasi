@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { getFeaturedServices } from "@/data/services";
+import { getFeaturedServicesFromDb } from "@/lib/services/catalog";
 import { ServiceCard } from "@/components/services/ServiceCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
-export function FeaturedServices() {
-  const featured = getFeaturedServices();
+export async function FeaturedServices() {
+  const featured = await getFeaturedServicesFromDb();
 
   return (
     <section className="relative bg-[var(--ink)] py-24 lg:py-32">

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { SERVICE_CATEGORIES, PAGE_COVERS } from "@/lib/constants";
-import { SERVICES } from "@/data/services";
+import { PAGE_COVERS } from "@/lib/constants";
+import { getPublicCategories, getPublicServices } from "@/lib/services/catalog";
 import { ServiceCard } from "@/components/services/ServiceCard";
 import { PageHero } from "@/components/ui/PageHero";
 import type { Metadata } from "next";
@@ -9,7 +9,14 @@ export const metadata: Metadata = {
   title: "Services & Prices",
 };
 
-export default function ServicesPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ServicesPage() {
+  const [categories, services] = await Promise.all([
+    getPublicCategories(),
+    getPublicServices(),
+  ]);
+
   return (
     <>
       <PageHero
@@ -22,7 +29,7 @@ export default function ServicesPage() {
       <div className="bg-[var(--ink)] py-16 pb-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap justify-center gap-2">
-            {SERVICE_CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <Link
                 key={cat.slug}
                 href={`/services/${cat.slug}`}
@@ -34,7 +41,7 @@ export default function ServicesPage() {
           </div>
 
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {SERVICES.map((service) => (
+            {services.map((service) => (
               <ServiceCard key={service.id} service={service} />
             ))}
           </div>

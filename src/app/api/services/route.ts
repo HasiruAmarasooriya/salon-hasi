@@ -54,6 +54,7 @@ export async function POST(request: Request) {
         price: parsed.data.price,
         durationMin: parsed.data.durationMin,
         imageUrl: normalizeImageUrl(parsed.data.imageUrl),
+        driveFileId: parsed.data.driveFileId ?? null,
         categoryId: parsed.data.categoryId,
         sortOrder: parsed.data.sortOrder ?? 0,
         isActive: parsed.data.isActive ?? true,

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Loader2, Pencil, Plus } from "lucide-react";
 import { AdminModal, adminInputClass, adminLabelClass } from "@/components/admin/AdminModal";
 import { ConfirmDeleteButton } from "@/components/admin/ConfirmDeleteButton";
+import { LocalImageUpload } from "@/components/admin/LocalImageUpload";
 
 export type StaffRow = {
   id: string;
@@ -194,14 +195,11 @@ export function StaffManager({ initialStaff }: Props) {
               className={adminInputClass}
             />
           </div>
-          <div>
-            <label className={adminLabelClass}>Photo URL (optional)</label>
-            <input
-              value={form.imageUrl}
-              onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-              className={adminInputClass}
-            />
-          </div>
+          <LocalImageUpload
+            label="Staff photo"
+            imageUrl={form.imageUrl}
+            onChange={(imageUrl) => setForm({ ...form, imageUrl })}
+          />
           <label className="flex items-center gap-2 text-sm text-zinc-700">
             <input
               type="checkbox"

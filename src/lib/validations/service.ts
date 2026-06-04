@@ -14,6 +14,7 @@ export const serviceSchema = z.object({
   price: z.coerce.number().min(0, "Price must be 0 or more"),
   durationMin: z.coerce.number().int().min(5).max(480),
   imageUrl: z.string().max(500).optional().nullable(),
+  driveFileId: z.string().max(120).optional().nullable(),
   categoryId: z.string().min(1, "Category is required"),
   sortOrder: z.coerce.number().int().min(0).optional(),
   isActive: z.boolean().optional(),

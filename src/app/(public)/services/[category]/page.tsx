@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
-import { SERVICE_CATEGORIES, STOCK_IMAGES } from "@/lib/constants";
-import { getServicesByCategory } from "@/data/services";
+import { STOCK_IMAGES } from "@/lib/constants";
+import {
+  getCategoryBySlug,
+  getPublicCategories,
+  getServicesByCategorySlug,
+} from "@/lib/services/catalog";
 import { ServiceCard } from "@/components/services/ServiceCard";
 import { PageHero } from "@/components/ui/PageHero";
 import type { Metadata } from "next";
@@ -16,22 +20,25 @@ const categoryImages: Record<string, string> = {
   packages: "https://images.unsplash.com/photo-1560066984-138d9834f42d?w=1920&q=80",
 };
 
+export const dynamic = "force-dynamic";
+
 export async function generateStaticParams() {
-  return SERVICE_CATEGORIES.map((c) => ({ category: c.slug }));
+  const categories = await getPublicCategories();
+  return categories.map((c) => ({ category: c.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params;
-  const cat = SERVICE_CATEGORIES.find((c) => c.slug === category);
+  const cat = await getCategoryBySlug(category);
   return { title: cat?.name ?? "Services" };
 }
 
 export default async function CategoryServicesPage({ params }: Props) {
   const { category } = await params;
-  const cat = SERVICE_CATEGORIES.find((c) => c.slug === category);
+  const cat = await getCategoryBySlug(category);
   if (!cat) notFound();
 
-  const services = getServicesByCategory(category);
+  const services = await getServicesByCategorySlug(category);
 
   return (
     <>
@@ -43,7 +50,9 @@ export default async function CategoryServicesPage({ params }: Props) {
       <div className="bg-[var(--ink)] py-16 pb-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {services.length === 0 ? (
-            <p className="text-center text-[var(--cream-muted)]">No services in this category yet.</p>
+            <p className="text-center text-[var(--cream-muted)]">
+              No services in this category yet.
+            </p>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {services.map((service) => (

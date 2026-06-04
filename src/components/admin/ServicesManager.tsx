@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Loader2, Pencil, Plus } from "lucide-react";
 import { AdminModal, adminInputClass, adminLabelClass } from "@/components/admin/AdminModal";
 import { ConfirmDeleteButton } from "@/components/admin/ConfirmDeleteButton";
+import { LocalImageUpload } from "@/components/admin/LocalImageUpload";
 import { formatDuration, formatPrice } from "@/lib/utils";
 
 export type CategoryRow = {
@@ -379,17 +380,11 @@ export function ServicesManager({ initialServices, initialCategories }: Props) {
               className={adminInputClass}
             />
           </div>
-          <div>
-            <label className={adminLabelClass}>Image URL (optional)</label>
-            <input
-              value={serviceForm.imageUrl}
-              onChange={(e) =>
-                setServiceForm({ ...serviceForm, imageUrl: e.target.value })
-              }
-              className={adminInputClass}
-              placeholder="/images/..."
-            />
-          </div>
+          <LocalImageUpload
+            label="Service image"
+            imageUrl={serviceForm.imageUrl}
+            onChange={(imageUrl) => setServiceForm({ ...serviceForm, imageUrl })}
+          />
           <label className="flex items-center gap-2 text-sm text-zinc-700">
             <input
               type="checkbox"

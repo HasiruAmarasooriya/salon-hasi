@@ -11,6 +11,8 @@ import { Testimonials } from "@/components/home/Testimonials";
 import { GalleryPreview } from "@/components/home/GalleryPreview";
 import { LuxuryCta } from "@/components/home/LuxuryCta";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const galleryImages = await getGalleryImages();
 

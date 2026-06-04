@@ -36,6 +36,7 @@ export async function POST(request: Request) {
         title: parsed.data.title ?? null,
         bio: parsed.data.bio ?? null,
         imageUrl: normalizeImageUrl(parsed.data.imageUrl),
+        driveFileId: parsed.data.driveFileId ?? null,
         phone: parsed.data.phone ?? null,
         isActive: parsed.data.isActive ?? true,
       },

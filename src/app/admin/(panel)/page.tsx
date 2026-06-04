@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calendar, Receipt, Scissors, Users, MessageSquare } from "lucide-react";
+import { Calendar, Receipt, Scissors, Users, MessageSquare, Upload } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/utils";
 
@@ -74,6 +74,18 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Link
+          href="/admin/uploads"
+          className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 transition hover:border-emerald-300"
+        >
+          <div className="flex items-center gap-2 text-emerald-900">
+            <Upload size={18} />
+            <p className="font-medium">Upload images</p>
+          </div>
+          <p className="mt-1 text-sm text-emerald-800">
+            Add photos directly to the website →
+          </p>
+        </Link>
         <Link
           href="/admin/appointments"
           className="rounded-xl border border-amber-200 bg-amber-50 p-6 transition hover:border-amber-300"

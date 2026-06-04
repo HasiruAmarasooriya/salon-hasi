@@ -2,26 +2,15 @@ import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/auth/require-admin-api";
 import {
   ALLOWED_IMAGE_TYPES,
-  isDriveConfigured,
   MAX_UPLOAD_BYTES,
-} from "@/lib/google-drive/config";
-import { uploadImageToDrive } from "@/lib/google-drive/client";
+} from "@/lib/uploads/config";
+import { saveLocalImage } from "@/lib/uploads/local";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   const { error } = await requireAdminApi();
   if (error) return error;
-
-  if (!isDriveConfigured()) {
-    return NextResponse.json(
-      {
-        error:
-          "Google Drive is not configured. Add GOOGLE_SERVICE_ACCOUNT_JSON to .env and share your folder with the service account email.",
-      },
-      { status: 503 },
-    );
-  }
 
   try {
     const formData = await request.formData();
@@ -49,18 +38,15 @@ export async function POST(request: Request) {
     const safeName =
       file.name.replace(/[^a-zA-Z0-9._-]/g, "_") || `upload-${Date.now()}.jpg`;
 
-    const uploaded = await uploadImageToDrive(buffer, file.type, safeName);
+    const saved = await saveLocalImage(buffer, file.type, safeName);
 
     return NextResponse.json({
       success: true,
-      fileId: uploaded.fileId,
-      imageUrl: uploaded.imageUrl,
-      publicUrl: uploaded.publicUrl,
+      imageUrl: saved.imageUrl,
     });
   } catch (err) {
-    console.error("Drive upload error:", err);
-    const message =
-      err instanceof Error ? err.message : "Upload to Google Drive failed";
+    console.error("Upload error:", err);
+    const message = err instanceof Error ? err.message : "Upload failed";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

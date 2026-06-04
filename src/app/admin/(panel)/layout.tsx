@@ -8,12 +8,14 @@ import {
   Settings,
   ImageIcon,
   MessageSquare,
+  Upload,
 } from "lucide-react";
 import { getSession } from "@/lib/auth/session";
 import { AdminLogoutButton } from "@/components/auth/AdminLogoutButton";
 
 const adminNav = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/uploads", label: "Upload images", icon: Upload },
   { href: "/admin/services", label: "Services & Prices", icon: Scissors },
   { href: "/admin/appointments", label: "Appointments", icon: Calendar },
   { href: "/admin/messages", label: "Messages", icon: MessageSquare },

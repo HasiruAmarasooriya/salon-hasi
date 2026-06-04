@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Clock, Sparkles } from "lucide-react";
 import type { ServiceItem } from "@/data/services";
+import { isUploadedImage } from "@/lib/images";
 import { formatDuration, formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 
@@ -13,6 +14,7 @@ export function ServiceCard({ service }: { service: ServiceItem }) {
           src={service.imageUrl}
           alt={service.name}
           fill
+          unoptimized={isUploadedImage(service.imageUrl)}
           className="object-cover transition duration-700 group-hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
