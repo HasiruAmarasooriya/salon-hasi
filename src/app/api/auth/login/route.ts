@@ -54,10 +54,19 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Login error:", error);
-    const message =
-      error instanceof Error && error.message.includes("INVALID")
-        ? "Invalid email or password"
-        : "Login failed. Please try again.";
+    let message = "Login failed. Please try again.";
+    if (error instanceof Error) {
+      if (error.message.includes("INVALID")) {
+        message = "Invalid email or password";
+      } else if (
+        error.message.includes("API key") ||
+        error.message.includes("placeholder") ||
+        error.message.includes("NEXT_PUBLIC_FIREBASE_API_KEY")
+      ) {
+        message =
+          "Firebase web config is missing or invalid. Run: npm run setup:firebase-web, then restart npm run dev.";
+      }
+    }
     return NextResponse.json({ error: message }, { status: 401 });
   }
 }

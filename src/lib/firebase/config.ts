@@ -24,10 +24,19 @@ export function getFirebaseClientConfig() {
   };
 }
 
+const PLACEHOLDER_API_KEY = /^your-api-key$/i;
+
 export function getFirebaseApiKey() {
-  const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY?.trim();
   if (!apiKey) {
-    throw new Error("NEXT_PUBLIC_FIREBASE_API_KEY is not set");
+    throw new Error(
+      "NEXT_PUBLIC_FIREBASE_API_KEY is not set. Run: npm run setup:firebase-web",
+    );
+  }
+  if (PLACEHOLDER_API_KEY.test(apiKey)) {
+    throw new Error(
+      "NEXT_PUBLIC_FIREBASE_API_KEY is still a placeholder. Run: npm run setup:firebase-web",
+    );
   }
   return apiKey;
 }

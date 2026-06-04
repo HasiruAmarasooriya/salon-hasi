@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "setup:firebase": "node scripts/setup-firebase-credentials.cjs",
+    "setup:firebase-web": "node scripts/sync-firebase-web-config.cjs",
     "db:seed": "node scripts/setup-firebase-credentials.cjs && node node_modules/tsx/dist/cli.mjs scripts/seed-firestore.ts"
   },
   "dependencies": {

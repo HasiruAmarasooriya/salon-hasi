@@ -58,9 +58,38 @@ function searchCommonLocations() {
   return null;
 }
 
+const envPath = path.join(projectRoot, ".env");
+const envExamplePath = path.join(projectRoot, ".env.example");
+const credEnvLine = "GOOGLE_APPLICATION_CREDENTIALS=./firebase-service-account.json";
+
+function ensureEnvCredentialsLine() {
+  if (!fs.existsSync(envPath) && fs.existsSync(envExamplePath)) {
+    let example = fs.readFileSync(envExamplePath, "utf8");
+    example = example.replace(
+      /^# GOOGLE_APPLICATION_CREDENTIALS=.*$/m,
+      credEnvLine,
+    );
+    if (!example.includes(credEnvLine)) {
+      example += `\n${credEnvLine}\n`;
+    }
+    fs.writeFileSync(envPath, example, "utf8");
+    console.log("✓ Created .env from .env.example (set GOOGLE_APPLICATION_CREDENTIALS).");
+    console.log("  Fill in NEXT_PUBLIC_FIREBASE_* values from Firebase Console → Project settings → Your apps.");
+    return;
+  }
+  if (!fs.existsSync(envPath)) return;
+  let env = fs.readFileSync(envPath, "utf8");
+  if (env.includes("GOOGLE_APPLICATION_CREDENTIALS=")) return;
+  env = env.trimEnd() + `\n${credEnvLine}\n`;
+  fs.writeFileSync(envPath, env, "utf8");
+  console.log("✓ Added GOOGLE_APPLICATION_CREDENTIALS to .env");
+}
+
 function main() {
   if (fs.existsSync(target) && isServiceAccountJson(target)) {
+    ensureEnvCredentialsLine();
     console.log("✓ firebase-service-account.json is already in place.");
+    console.log("  Run: npm run setup:firebase-web  (if login says invalid API key)");
     console.log("  Run: npm run db:seed");
     return;
   }
@@ -68,6 +97,7 @@ function main() {
   const discovered = searchCommonLocations();
   if (discovered) {
     fs.copyFileSync(discovered, target);
+    ensureEnvCredentialsLine();
     console.log("✓ Copied service account key to:");
     console.log(" ", target);
     console.log("  From:", discovered);
