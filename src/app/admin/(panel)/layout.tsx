@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   LayoutDashboard,
   Scissors,
@@ -14,7 +15,7 @@ import {
   BookOpen,
   LayoutGrid,
 } from "lucide-react";
-import { getSession } from "@/lib/auth/session";
+import { getSession, isAdminRole } from "@/lib/auth/session";
 import { AdminLogoutButton } from "@/components/auth/AdminLogoutButton";
 
 const adminNav = [
@@ -37,6 +38,10 @@ export default async function AdminPanelLayout({
   children: React.ReactNode;
 }) {
   const session = await getSession();
+
+  if (!session || !isAdminRole(session.role)) {
+    redirect("/admin/login");
+  }
 
   return (
     <div className="flex min-h-screen bg-zinc-100">

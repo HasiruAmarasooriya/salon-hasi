@@ -42,17 +42,38 @@ function readServiceAccountFile(absolute: string): Record<string, string> {
   }
 }
 
-export function isFirebaseAdminConfigured(): boolean {
+function parseServiceAccountJson(raw: string): Record<string, string> {
+  const trimmed = raw.trim();
+  try {
+    return JSON.parse(trimmed) as Record<string, string>;
+  } catch {
+    const unquoted =
+      (trimmed.startsWith("'") && trimmed.endsWith("'")) ||
+      (trimmed.startsWith('"') && trimmed.endsWith('"'))
+        ? trimmed.slice(1, -1)
+        : trimmed;
+    return JSON.parse(unquoted) as Record<string, string>;
+  }
+}
+
+function tryParseEnvServiceAccount(): Record<string, string> | null {
   const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();
-  if (json && json !== "" && !json.startsWith("#")) return true;
+  if (!json || json.startsWith("#")) return null;
+  try {
+    return parseServiceAccountJson(json);
+  } catch {
+    return null;
+  }
+}
+
+export function isFirebaseAdminConfigured(): boolean {
+  if (tryParseEnvServiceAccount()) return true;
   return !!resolveServiceAccountPath();
 }
 
 function loadServiceAccount(): Record<string, string> {
-  const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();
-  if (json && !json.startsWith("#")) {
-    return JSON.parse(json) as Record<string, string>;
-  }
+  const fromEnv = tryParseEnvServiceAccount();
+  if (fromEnv) return fromEnv;
 
   const filePath = resolveServiceAccountPath();
   if (filePath) {
