@@ -40,6 +40,7 @@ export async function POST(request: Request) {
       name: parsed.data.name,
       description: parsed.data.description ?? null,
       icon: parsed.data.icon ?? null,
+      imageUrl: parsed.data.imageUrl ?? null,
       sortOrder: parsed.data.sortOrder ?? 0,
       isActive: parsed.data.isActive ?? true,
     });

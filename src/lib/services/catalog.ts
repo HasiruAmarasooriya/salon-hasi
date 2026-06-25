@@ -4,7 +4,7 @@ import {
   listActiveStaff,
 } from "@/lib/firestore";
 import { firestoreReadOrFallback } from "@/lib/firebase/firestore-read";
-import { SERVICE_CATEGORIES } from "@/lib/constants";
+import { SERVICE_CATEGORIES, getCategoryFallbackImage } from "@/lib/constants";
 import { SERVICES, type ServiceItem } from "@/data/services";
 import type { ServiceCategory, ServiceWithCategory, Staff } from "@/lib/types/database";
 
@@ -40,7 +40,15 @@ export type PublicCategory = {
   name: string;
   description: string;
   icon: string;
+  imageUrl: string | null;
 };
+
+export function resolveCategoryImage(
+  slug: string,
+  imageUrl: string | null | undefined,
+): string {
+  return imageUrl || getCategoryFallbackImage(slug);
+}
 
 function staticCategories(): PublicCategory[] {
   return SERVICE_CATEGORIES.map((c) => ({
@@ -48,6 +56,7 @@ function staticCategories(): PublicCategory[] {
     name: c.name,
     description: c.description,
     icon: c.icon,
+    imageUrl: null,
   }));
 }
 
@@ -66,6 +75,7 @@ export async function getPublicCategories(): Promise<PublicCategory[]> {
     name: c.name,
     description: c.description ?? "",
     icon: c.icon ?? "scissors",
+    imageUrl: c.imageUrl,
   }));
 }
 

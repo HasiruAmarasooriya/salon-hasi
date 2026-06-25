@@ -83,6 +83,7 @@ function mapCategory(id: string, data: FirebaseFirestore.DocumentData): ServiceC
     name: data.name,
     description: data.description ?? null,
     icon: data.icon ?? null,
+    imageUrl: data.imageUrl ?? null,
     sortOrder: data.sortOrder ?? 0,
     isActive: data.isActive ?? true,
     createdAt: toDate(data.createdAt),

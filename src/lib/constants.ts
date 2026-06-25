@@ -68,3 +68,17 @@ export const SERVICE_CATEGORIES = [
     icon: "gift",
   },
 ] as const;
+
+/** Default category card images when none uploaded in admin */
+export const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
+  hair: STOCK_IMAGES.hair,
+  beard: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&q=80",
+  nails: "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=600&q=80",
+  foot: "https://images.unsplash.com/photo-1544161515-4ab6ce6db949?w=600&q=80",
+  facial: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&q=80",
+  packages: STOCK_IMAGES.salonInteriorMd,
+};
+
+export function getCategoryFallbackImage(slug: string): string {
+  return CATEGORY_FALLBACK_IMAGES[slug] ?? CATEGORY_FALLBACK_IMAGES.hair ?? STOCK_IMAGES.hair;
+}

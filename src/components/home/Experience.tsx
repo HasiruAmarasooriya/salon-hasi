@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Award, Droplets, Sparkles, Shield } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { STOCK_IMAGES } from "@/lib/constants";
+import { isUploadedImage } from "@/lib/images";
 
 const features = [
   {
@@ -26,7 +27,13 @@ const features = [
   },
 ];
 
-export function Experience() {
+type Props = {
+  imageUrl?: string;
+};
+
+export function Experience({ imageUrl }: Props) {
+  const src = imageUrl ?? STOCK_IMAGES.salonInteriorMd;
+
   return (
     <section id="experience" className="relative bg-[var(--ink)] py-24 lg:py-32">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--gold-glow),_transparent_50%)]" />
@@ -35,11 +42,12 @@ export function Experience() {
           <div className="relative">
             <div className="relative aspect-[4/5] overflow-hidden rounded-sm gold-border-glow">
               <Image
-                src={STOCK_IMAGES.salonInteriorMd}
+                src={src}
                 alt="Luxury grooming experience"
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
+                unoptimized={isUploadedImage(src)}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[var(--ink)]/80 via-transparent to-transparent" />
             </div>

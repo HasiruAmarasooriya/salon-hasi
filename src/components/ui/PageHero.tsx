@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { PAGE_COVERS } from "@/lib/constants";
+import { isUploadedImage } from "@/lib/images";
 
 type PageHeroProps = {
   title: string;
@@ -25,6 +26,7 @@ export function PageHero({
         priority
         className="object-cover object-center scale-105"
         sizes="100vw"
+        unoptimized={isUploadedImage(image)}
       />
       <div className="absolute inset-0 bg-gradient-to-r from-[var(--ink)] via-[var(--ink)]/75 to-[var(--ink)]/30" />
       <div className="absolute inset-0 bg-gradient-to-t from-[var(--ink)] via-[var(--ink)]/50 to-[var(--ink)]/20" />

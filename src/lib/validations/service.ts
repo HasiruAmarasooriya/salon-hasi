@@ -4,6 +4,7 @@ export const serviceCategorySchema = z.object({
   name: z.string().min(1, "Name is required").max(120),
   description: z.string().max(500).optional().nullable(),
   icon: z.string().max(40).optional().nullable(),
+  imageUrl: z.string().max(500).optional().nullable(),
   sortOrder: z.coerce.number().int().min(0).optional(),
   isActive: z.boolean().optional(),
 });

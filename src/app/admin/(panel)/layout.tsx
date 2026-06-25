@@ -11,6 +11,8 @@ import {
   ImageIcon,
   MessageSquare,
   Upload,
+  BookOpen,
+  LayoutGrid,
 } from "lucide-react";
 import { getSession } from "@/lib/auth/session";
 import { AdminLogoutButton } from "@/components/auth/AdminLogoutButton";
@@ -19,6 +21,8 @@ const adminNav = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/uploads", label: "Upload images", icon: Upload },
   { href: "/admin/services", label: "Services & Prices", icon: Scissors },
+  { href: "/admin/about", label: "About & Home", icon: BookOpen },
+  { href: "/admin/collections", label: "Service Collections", icon: LayoutGrid },
   { href: "/admin/appointments", label: "Appointments", icon: Calendar },
   { href: "/admin/messages", label: "Messages", icon: MessageSquare },
   { href: "/admin/billing", label: "Billing", icon: Receipt },

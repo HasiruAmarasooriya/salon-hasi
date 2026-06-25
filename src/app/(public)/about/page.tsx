@@ -2,14 +2,16 @@ import Image from "next/image";
 import { PageHero } from "@/components/ui/PageHero";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
-import { PAGE_COVERS, STOCK_IMAGES } from "@/lib/constants";
+import { isUploadedImage } from "@/lib/images";
+import { getPageImages } from "@/lib/page-images";
+import { getActiveStaff } from "@/lib/services/catalog";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Our Story",
 };
 
-const team = [
+const fallbackTeam = [
   {
     name: "Hasi Fernando",
     role: "Founder & Master Stylist",
@@ -27,14 +29,27 @@ const team = [
   },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const [pageImages, staff] = await Promise.all([getPageImages(), getActiveStaff()]);
+
+  const team =
+    staff.length > 0
+      ? staff.map((member) => ({
+          name: member.name,
+          role: member.title ?? "Stylist",
+          image:
+            member.imageUrl ??
+            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
+        }))
+      : fallbackTeam;
+
   return (
     <>
       <PageHero
         title="Our Story"
         subtitle="A legacy of craftsmanship, hospitality, and uncompromising standards since 2014."
         eyebrow="About Us"
-        image={PAGE_COVERS.about}
+        image={pageImages.aboutHero}
         imageAlt="Salon Hasi interior — Matale"
       />
 
@@ -59,11 +74,12 @@ export default function AboutPage() {
           </div>
           <div className="relative aspect-[4/5] overflow-hidden rounded-sm gold-border-glow">
             <Image
-              src={STOCK_IMAGES.salonInteriorMd}
+              src={pageImages.aboutPhilosophy}
               alt="Salon team at work"
               fill
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 50vw"
+              unoptimized={isUploadedImage(pageImages.aboutPhilosophy)}
             />
           </div>
         </div>
@@ -87,6 +103,7 @@ export default function AboutPage() {
                     fill
                     className="object-cover grayscale transition duration-500 group-hover:grayscale-0"
                     sizes="300px"
+                    unoptimized={isUploadedImage(member.image)}
                   />
                   <div className="absolute inset-0 border border-transparent transition group-hover:border-[var(--gold)]/50" />
                 </div>

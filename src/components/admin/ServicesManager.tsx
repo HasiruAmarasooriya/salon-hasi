@@ -13,6 +13,7 @@ export type CategoryRow = {
   name: string;
   description: string | null;
   icon: string | null;
+  imageUrl: string | null;
   sortOrder: number;
   isActive: boolean;
 };
@@ -50,6 +51,7 @@ const emptyCategory = {
   name: "",
   description: "",
   icon: "",
+  imageUrl: "",
   sortOrder: 0,
   isActive: true,
 };
@@ -104,6 +106,7 @@ export function ServicesManager({ initialServices, initialCategories }: Props) {
       name: c.name,
       description: c.description ?? "",
       icon: c.icon ?? "",
+      imageUrl: c.imageUrl ?? "",
       sortOrder: c.sortOrder,
       isActive: c.isActive,
     });
@@ -154,6 +157,7 @@ export function ServicesManager({ initialServices, initialCategories }: Props) {
       ...categoryForm,
       description: categoryForm.description || null,
       icon: categoryForm.icon || null,
+      imageUrl: categoryForm.imageUrl || null,
     };
 
     try {
@@ -440,6 +444,12 @@ export function ServicesManager({ initialServices, initialCategories }: Props) {
               className={adminInputClass}
             />
           </div>
+          <LocalImageUpload
+            label="Collection image"
+            hint="Shown on the homepage “Signature Service Collections” and category menu pages."
+            imageUrl={categoryForm.imageUrl}
+            onChange={(imageUrl) => setCategoryForm({ ...categoryForm, imageUrl })}
+          />
           <label className="flex items-center gap-2 text-sm text-zinc-700">
             <input
               type="checkbox"

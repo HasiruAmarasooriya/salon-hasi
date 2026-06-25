@@ -32,6 +32,7 @@ export type ServiceCategory = {
   name: string;
   description: string | null;
   icon: string | null;
+  imageUrl: string | null;
   sortOrder: number;
   isActive: boolean;
   createdAt: Date;

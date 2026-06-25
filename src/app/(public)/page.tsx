@@ -1,6 +1,7 @@
 import { Hero } from "@/components/home/Hero";
 import { OffersBanner } from "@/components/home/OffersBanner";
 import { getGalleryImages } from "@/lib/gallery";
+import { getPageImages } from "@/lib/page-images";
 import { MarqueeBanner } from "@/components/home/MarqueeBanner";
 import { TrustBar } from "@/components/home/TrustBar";
 import { Experience } from "@/components/home/Experience";
@@ -14,7 +15,10 @@ import { LuxuryCta } from "@/components/home/LuxuryCta";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const galleryImages = await getGalleryImages();
+  const [galleryImages, pageImages] = await Promise.all([
+    getGalleryImages(),
+    getPageImages(),
+  ]);
 
   return (
     <>
@@ -22,7 +26,7 @@ export default async function HomePage() {
       <OffersBanner />
       <MarqueeBanner />
       <TrustBar />
-      <Experience />
+      <Experience imageUrl={pageImages.experience} />
       <Categories />
       <FeaturedServices />
       <Process />

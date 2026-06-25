@@ -1,23 +1,14 @@
 import { notFound } from "next/navigation";
-import { STOCK_IMAGES } from "@/lib/constants";
 import {
   getCategoryBySlug,
   getServicesByCategorySlug,
+  resolveCategoryImage,
 } from "@/lib/services/catalog";
 import { ServiceCard } from "@/components/services/ServiceCard";
 import { PageHero } from "@/components/ui/PageHero";
 import type { Metadata } from "next";
 
 type Props = { params: Promise<{ category: string }> };
-
-const categoryImages: Record<string, string> = {
-  hair: STOCK_IMAGES.hero,
-  beard: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=1920&q=80",
-  nails: "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=1920&q=80",
-  foot: "https://images.unsplash.com/photo-1544161515-4ab6ce6db949?w=1920&q=80",
-  facial: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=1920&q=80",
-  packages: "https://images.unsplash.com/photo-1560066984-138d9834f42d?w=1920&q=80",
-};
 
 export const dynamic = "force-dynamic";
 
@@ -33,13 +24,14 @@ export default async function CategoryServicesPage({ params }: Props) {
   if (!cat) notFound();
 
   const services = await getServicesByCategorySlug(category);
+  const heroImage = resolveCategoryImage(cat.slug, cat.imageUrl);
 
   return (
     <>
       <PageHero
         title={cat.name}
         subtitle={cat.description}
-        image={categoryImages[cat.slug] ?? categoryImages.hair}
+        image={heroImage}
       />
       <div className="bg-[var(--ink)] py-16 pb-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

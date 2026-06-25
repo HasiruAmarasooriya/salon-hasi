@@ -91,6 +91,7 @@ async function seedCategories() {
         name: cat.name,
         description: cat.description,
         icon: cat.icon,
+        imageUrl: null,
         sortOrder: i,
         isActive: true,
       });
