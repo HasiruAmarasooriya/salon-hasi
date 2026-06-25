@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { CheckCircle2, Loader2, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { isUploadedImage } from "@/lib/images";
 
 type RecentItem = {
   id: string;
@@ -160,7 +161,7 @@ export function DirectImageUploader({ recentImages }: Props) {
                     fill
                     className="object-cover"
                     sizes="200px"
-                    unoptimized={img.imageUrl.startsWith("/uploads/")}
+                    unoptimized={isUploadedImage(img.imageUrl)}
                   />
                 </div>
                 <p className="truncate px-3 py-2 text-xs text-zinc-700">

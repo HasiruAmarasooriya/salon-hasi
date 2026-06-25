@@ -5,7 +5,7 @@ import {
   updateGalleryImage,
 } from "@/lib/firestore";
 import { requireAdminApi } from "@/lib/auth/require-admin-api";
-import { deleteLocalImage } from "@/lib/uploads/local";
+import { deleteUploadedImage } from "@/lib/uploads";
 import { galleryImageSchema } from "@/lib/validations/gallery";
 
 type Params = { params: Promise<{ id: string }> };
@@ -53,7 +53,7 @@ export async function DELETE(_request: Request, { params }: Params) {
     await deleteGalleryImage(id);
 
     if (existing?.imageUrl) {
-      await deleteLocalImage(existing.imageUrl);
+      await deleteUploadedImage(existing.imageUrl);
     }
 
     return NextResponse.json({ success: true });

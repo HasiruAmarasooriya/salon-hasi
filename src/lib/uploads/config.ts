@@ -1,4 +1,5 @@
 export const UPLOADS_DIR = "uploads";
+export const STORAGE_PREFIX = "salon";
 export const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
 
 export const ALLOWED_IMAGE_TYPES = new Set([

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import { isUploadedImage } from "@/lib/images";
 import type { GalleryItem } from "@/lib/gallery";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
@@ -46,7 +47,7 @@ export function GalleryPreview({ images }: Props) {
                 src={img.src}
                 alt={img.title}
                 fill
-                unoptimized={img.src.startsWith("/uploads/")}
+                unoptimized={isUploadedImage(img.src)}
                 className="object-cover transition duration-500 hover:scale-105"
                 sizes="(max-width: 768px) 50vw, 33vw"
               />

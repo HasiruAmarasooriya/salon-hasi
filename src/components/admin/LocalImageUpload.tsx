@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { Loader2, Upload } from "lucide-react";
 import { adminLabelClass } from "@/components/admin/AdminModal";
 import { cn } from "@/lib/utils";
+import { isUploadedImage } from "@/lib/images";
 
 type Props = {
   imageUrl: string;
@@ -19,7 +20,7 @@ export function LocalImageUpload({
   onChange,
   required,
   label = "Photo",
-  hint = "Saved on this website. You can delete it from the admin panel.",
+  hint = "Saved to Firebase Storage in production. You can replace it anytime from admin.",
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -120,7 +121,7 @@ export function LocalImageUpload({
             fill
             className="object-cover"
             sizes="320px"
-            unoptimized={imageUrl.startsWith("/uploads/")}
+            unoptimized={isUploadedImage(imageUrl)}
           />
         </div>
       )}

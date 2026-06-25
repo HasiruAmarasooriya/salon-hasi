@@ -7,6 +7,7 @@ import { Loader2, Pencil, Plus } from "lucide-react";
 import { AdminModal, adminInputClass, adminLabelClass } from "@/components/admin/AdminModal";
 import { ConfirmDeleteButton } from "@/components/admin/ConfirmDeleteButton";
 import { LocalImageUpload } from "@/components/admin/LocalImageUpload";
+import { isUploadedImage } from "@/lib/images";
 
 export type GalleryRow = {
   id: string;
@@ -142,7 +143,7 @@ export function GalleryManager({ initialImages }: Props) {
                   fill
                   className="object-cover"
                   sizes="300px"
-                  unoptimized={img.imageUrl.startsWith("/uploads/")}
+                  unoptimized={isUploadedImage(img.imageUrl)}
                 />
               </div>
               <div className="p-4">

@@ -4,7 +4,7 @@ import {
   ALLOWED_IMAGE_TYPES,
   MAX_UPLOAD_BYTES,
 } from "@/lib/uploads/config";
-import { saveLocalImage } from "@/lib/uploads/local";
+import { saveUploadedImage } from "@/lib/uploads";
 
 export const runtime = "nodejs";
 
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     const safeName =
       file.name.replace(/[^a-zA-Z0-9._-]/g, "_") || `upload-${Date.now()}.jpg`;
 
-    const saved = await saveLocalImage(buffer, file.type, safeName);
+    const saved = await saveUploadedImage(buffer, file.type, safeName);
 
     return NextResponse.json({
       success: true,

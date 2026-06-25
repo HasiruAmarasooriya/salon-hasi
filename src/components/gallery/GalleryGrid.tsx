@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { isUploadedImage } from "@/lib/images";
 import type { GalleryItem } from "@/lib/gallery";
 
 type Props = {
@@ -50,7 +51,7 @@ export function GalleryGrid({ images }: Props) {
                 src={img.src}
                 alt={img.title}
                 fill
-                unoptimized={img.src.startsWith("/uploads/")}
+                unoptimized={isUploadedImage(img.src)}
                 className="object-cover transition duration-500 group-hover:scale-105"
                 sizes="(max-width: 768px) 50vw, 25vw"
               />
