@@ -12,6 +12,7 @@ const projectRoot = path.join(__dirname, "..");
 const serviceAccountPath = path.join(projectRoot, "firebase-service-account.json");
 const envPath = path.join(projectRoot, ".env");
 const envExamplePath = path.join(projectRoot, ".env.example");
+const productionEnvPath = path.join(projectRoot, ".env.production.local");
 
 const PLACEHOLDER_PATTERN = /your-(api-key|sender-id|app-id|measurement-id)/i;
 const PLACEHOLDER_API_KEY = /^your-api-key$/i;
@@ -19,13 +20,37 @@ const PLACEHOLDER_API_KEY = /^your-api-key$/i;
 const args = new Set(process.argv.slice(2));
 const printOnly = args.has("--print");
 const ifNeeded = args.has("--if-needed");
+const isVercel = !!process.env.VERCEL;
 
 require("dotenv").config();
+if (fs.existsSync(productionEnvPath)) {
+  require("dotenv").config({ path: productionEnvPath, override: true });
+}
+
+function parseServiceAccountJson(raw) {
+  const trimmed = raw.trim();
+  try {
+    return JSON.parse(trimmed);
+  } catch (firstError) {
+    try {
+      const unquoted =
+        (trimmed.startsWith("'") && trimmed.endsWith("'")) ||
+        (trimmed.startsWith('"') && trimmed.endsWith('"'))
+          ? trimmed.slice(1, -1)
+          : trimmed;
+      return JSON.parse(unquoted);
+    } catch {
+      throw new Error(
+        "FIREBASE_SERVICE_ACCOUNT_JSON is invalid JSON. In Vercel, paste the full downloaded key file content (valid JSON, one line is fine).",
+      );
+    }
+  }
+}
 
 function loadServiceAccount() {
   const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();
   if (json && !json.startsWith("#")) {
-    return JSON.parse(json);
+    return parseServiceAccountJson(json);
   }
 
   if (fs.existsSync(serviceAccountPath)) {
@@ -48,10 +73,23 @@ function hasValidWebConfig() {
 }
 
 function resolveEnvTargetPath() {
-  if (process.env.VERCEL || process.env.CI) {
-    return path.join(projectRoot, ".env.production.local");
+  if (isVercel || process.env.CI) {
+    return productionEnvPath;
   }
   return envPath;
+}
+
+function failBuild(message) {
+  console.error(`\n✗ ${message}\n`);
+  if (isVercel) {
+    console.error("  Vercel → Project Settings → Environment Variables");
+    console.error("  1. Add FIREBASE_SERVICE_ACCOUNT_JSON (full service account JSON)");
+    console.error("  2. Enable Production, Preview, and Development");
+    console.error("  3. Redeploy (must be a new deployment after saving env vars)");
+    console.error("\n  Or run locally: npm run setup:firebase-web:vercel");
+    console.error("  and paste every NEXT_PUBLIC_FIREBASE_* line into Vercel.\n");
+  }
+  process.exit(1);
 }
 
 async function fetchWebSdkConfig(projectId, credentials) {
@@ -125,13 +163,19 @@ function upsertEnvFile(targetPath, entries) {
 
   if (
     !env.includes("GOOGLE_APPLICATION_CREDENTIALS=") &&
-    !process.env.VERCEL &&
+    !isVercel &&
     fs.existsSync(serviceAccountPath)
   ) {
     env = `${env.trimEnd()}\nGOOGLE_APPLICATION_CREDENTIALS=./firebase-service-account.json\n`;
   }
 
   fs.writeFileSync(targetPath, env.endsWith("\n") ? env : `${env}\n`);
+}
+
+function applyEntriesToProcessEnv(entries) {
+  for (const [key, value] of Object.entries(entries)) {
+    process.env[key] = String(value);
+  }
 }
 
 function printEnvEntries(entries) {
@@ -151,10 +195,14 @@ async function main() {
 
   const credentials = loadServiceAccount();
   if (!credentials) {
+    if (ifNeeded && isVercel) {
+      failBuild(
+        "Firebase web config is missing and FIREBASE_SERVICE_ACCOUNT_JSON is not set on Vercel.",
+      );
+    }
     if (ifNeeded) {
       console.warn(
-        "Warning: NEXT_PUBLIC_FIREBASE_* not set and FIREBASE_SERVICE_ACCOUNT_JSON missing. " +
-          "Add env vars in Vercel or run npm run setup:firebase-web locally.",
+        "Warning: NEXT_PUBLIC_FIREBASE_* not set and FIREBASE_SERVICE_ACCOUNT_JSON missing.",
       );
       return;
     }
@@ -163,8 +211,7 @@ async function main() {
 
   const projectId = credentials.project_id;
   if (!projectId) {
-    console.error("✗ Service account JSON is missing project_id");
-    process.exit(1);
+    failBuild("Service account JSON is missing project_id");
   }
 
   console.log(`Fetching web SDK config for project: ${projectId}…`);
@@ -178,20 +225,15 @@ async function main() {
 
   const targetPath = resolveEnvTargetPath();
   upsertEnvFile(targetPath, entries);
+  applyEntriesToProcessEnv(entries);
 
-  for (const [key, value] of Object.entries(entries)) {
-    process.env[key] = String(value);
+  if (!hasValidWebConfig()) {
+    failBuild("Firebase web config could not be applied after sync.");
   }
-
-  const hadPlaceholders =
-    fs.existsSync(envPath) && PLACEHOLDER_PATTERN.test(fs.readFileSync(envPath, "utf8"));
 
   console.log(`✓ Wrote NEXT_PUBLIC_FIREBASE_* to ${path.basename(targetPath)}`);
-  if (hadPlaceholders) {
-    console.log("  (replaced placeholder values)");
-  }
-  if (process.env.VERCEL) {
-    console.log("  Vercel build will embed these values for login and the client SDK.");
+  if (isVercel) {
+    console.log("  Keys synced for this build:", Object.keys(entries).join(", "));
   } else {
     console.log("\n  Restart the dev server: npm run dev");
     console.log("  Then sign in at http://localhost:3000/admin/login\n");
@@ -200,7 +242,10 @@ async function main() {
 
 main().catch((err) => {
   console.error("\n✗", err.message || err);
-  if (process.env.VERCEL) {
+  if (ifNeeded && isVercel) {
+    failBuild("Firebase web config sync failed during Vercel build.");
+  }
+  if (isVercel) {
     console.error(
       "\n  Vercel fix: Project Settings → Environment Variables → add FIREBASE_SERVICE_ACCOUNT_JSON",
     );
@@ -211,5 +256,5 @@ main().catch((err) => {
     );
     console.error("  Or run: npm run setup:firebase-web:vercel\n");
   }
-  process.exit(ifNeeded ? 0 : 1);
+  process.exit(1);
 });
