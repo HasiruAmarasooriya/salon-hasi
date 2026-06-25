@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -13,7 +12,6 @@ type AuthFormProps = {
 };
 
 export function AuthForm({ mode, title, subtitle }: AuthFormProps) {
-  const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -53,8 +51,10 @@ export function AuthForm({ mode, title, subtitle }: AuthFormProps) {
         return;
       }
 
-      router.push(data.redirect ?? (mode === "admin-login" ? "/admin" : "/account"));
-      router.refresh();
+      const redirect =
+        data.redirect ??
+        (mode === "admin-login" ? "/admin" : mode === "register" ? "/account" : "/account");
+      window.location.assign(redirect);
     } catch {
       setError("Network error. Please try again.");
     } finally {

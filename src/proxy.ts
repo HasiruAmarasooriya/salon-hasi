@@ -15,7 +15,6 @@ export async function proxy(request: NextRequest) {
   const isAdminLogin = pathname === "/admin/login";
   const isAdminRoute = pathname.startsWith("/admin");
   const isAccountRoute = pathname.startsWith("/account");
-  const isUserAuthRoute = pathname === "/login" || pathname === "/register";
 
   if (isAdminRoute && !isAdminLogin && !hasSession) {
     const loginUrl = new URL("/admin/login", request.url);
@@ -27,10 +26,6 @@ export async function proxy(request: NextRequest) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("from", pathname);
     return NextResponse.redirect(loginUrl);
-  }
-
-  if (isUserAuthRoute && hasSession) {
-    return NextResponse.redirect(new URL("/account", request.url));
   }
 
   return NextResponse.next();

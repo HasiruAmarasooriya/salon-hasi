@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { signUpWithEmailPassword } from "@/lib/firebase/auth-server";
+import { mapAuthRouteError } from "@/lib/firebase/auth-errors";
+import { isFirebaseAdminConfigured } from "@/lib/firebase/admin";
 import {
   createUserProfile,
   findUserByEmail,
@@ -8,6 +10,18 @@ import { setSessionCookie } from "@/lib/auth/session";
 import { registerSchema } from "@/lib/validations/auth";
 
 export async function POST(request: Request) {
+  if (!isFirebaseAdminConfigured()) {
+    return NextResponse.json(
+      {
+        error: mapAuthRouteError(
+          new Error("Firebase Admin is not configured"),
+          "Registration failed. Please try again.",
+        ),
+      },
+      { status: 503 },
+    );
+  }
+
   try {
     const body = await request.json();
     const parsed = registerSchema.safeParse(body);
@@ -48,6 +62,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
+      redirect: "/account",
       user: {
         id: user.id,
         email: user.email,
@@ -57,10 +72,9 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Register error:", error);
-    const message =
-      error instanceof Error && error.message.includes("EMAIL_EXISTS")
-        ? "An account with this email already exists"
-        : "Registration failed. Please try again.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      { error: mapAuthRouteError(error, "Registration failed. Please try again.") },
+      { status: 500 },
+    );
   }
 }

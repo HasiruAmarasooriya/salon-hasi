@@ -1,10 +1,24 @@
 import { NextResponse } from "next/server";
 import { signInWithEmailPassword } from "@/lib/firebase/auth-server";
-import { findUserById } from "@/lib/firestore";
+import { mapAuthRouteError } from "@/lib/firebase/auth-errors";
+import { isFirebaseAdminConfigured } from "@/lib/firebase/admin";
+import { createUserProfile, findUserById } from "@/lib/firestore";
 import { isAdminRole, setSessionCookie } from "@/lib/auth/session";
 import { loginSchema } from "@/lib/validations/auth";
 
 export async function POST(request: Request) {
+  if (!isFirebaseAdminConfigured()) {
+    return NextResponse.json(
+      {
+        error: mapAuthRouteError(
+          new Error("Firebase Admin is not configured"),
+          "Login failed. Please try again.",
+        ),
+      },
+      { status: 503 },
+    );
+  }
+
   try {
     const body = await request.json();
     const parsed = loginSchema.safeParse(body);
@@ -21,13 +35,23 @@ export async function POST(request: Request) {
     const normalizedEmail = email.toLowerCase().trim();
 
     const auth = await signInWithEmailPassword(normalizedEmail, password);
-    const user = await findUserById(auth.localId);
+    let user = await findUserById(auth.localId);
 
     if (!user) {
-      return NextResponse.json(
-        { error: "Account profile not found. Run npm run db:seed." },
-        { status: 401 },
-      );
+      if (mode === "admin") {
+        return NextResponse.json(
+          { error: "Admin account not found. Run npm run db:seed on the server." },
+          { status: 401 },
+        );
+      }
+
+      user = await createUserProfile(auth.localId, {
+        email: normalizedEmail,
+        name: auth.displayName?.trim() || null,
+        phone: null,
+        role: "CUSTOMER",
+        image: null,
+      });
     }
 
     if (mode === "admin" && !isAdminRole(user.role)) {
@@ -54,19 +78,9 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Login error:", error);
-    let message = "Login failed. Please try again.";
-    if (error instanceof Error) {
-      if (error.message.includes("INVALID")) {
-        message = "Invalid email or password";
-      } else if (
-        error.message.includes("Firebase web config") ||
-        error.message.includes("API key") ||
-        error.message.includes("placeholder") ||
-        error.message.includes("NEXT_PUBLIC_FIREBASE")
-      ) {
-        message = error.message;
-      }
-    }
-    return NextResponse.json({ error: message }, { status: 401 });
+    return NextResponse.json(
+      { error: mapAuthRouteError(error, "Login failed. Please try again.") },
+      { status: 401 },
+    );
   }
 }
