@@ -59,12 +59,12 @@ export async function POST(request: Request) {
       if (error.message.includes("INVALID")) {
         message = "Invalid email or password";
       } else if (
+        error.message.includes("Firebase web config") ||
         error.message.includes("API key") ||
         error.message.includes("placeholder") ||
-        error.message.includes("NEXT_PUBLIC_FIREBASE_API_KEY")
+        error.message.includes("NEXT_PUBLIC_FIREBASE")
       ) {
-        message =
-          "Firebase web config is missing or invalid. Run: npm run setup:firebase-web, then restart npm run dev.";
+        message = error.message;
       }
     }
     return NextResponse.json({ error: message }, { status: 401 });

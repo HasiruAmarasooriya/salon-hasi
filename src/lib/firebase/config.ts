@@ -26,16 +26,27 @@ export function getFirebaseClientConfig() {
 
 const PLACEHOLDER_API_KEY = /^your-api-key$/i;
 
+function firebaseWebSetupHint(): string {
+  if (process.env.VERCEL) {
+    return (
+      "Firebase web config is missing on Vercel. Add FIREBASE_SERVICE_ACCOUNT_JSON in " +
+      "Vercel → Project Settings → Environment Variables (then redeploy), or add all " +
+      "NEXT_PUBLIC_FIREBASE_* values manually. Local: npm run setup:firebase-web"
+    );
+  }
+  return "NEXT_PUBLIC_FIREBASE_API_KEY is not set. Run: npm run setup:firebase-web";
+}
+
 export function getFirebaseApiKey() {
   const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY?.trim();
   if (!apiKey) {
-    throw new Error(
-      "NEXT_PUBLIC_FIREBASE_API_KEY is not set. Run: npm run setup:firebase-web",
-    );
+    throw new Error(firebaseWebSetupHint());
   }
   if (PLACEHOLDER_API_KEY.test(apiKey)) {
     throw new Error(
-      "NEXT_PUBLIC_FIREBASE_API_KEY is still a placeholder. Run: npm run setup:firebase-web",
+      process.env.VERCEL
+        ? firebaseWebSetupHint()
+        : "NEXT_PUBLIC_FIREBASE_API_KEY is still a placeholder. Run: npm run setup:firebase-web",
     );
   }
   return apiKey;
